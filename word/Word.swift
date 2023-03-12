@@ -13,12 +13,4 @@ class Word: NSObject {
     var english: String?
     var soundmark: String?
     var chinese: String?
-    
-    var utterance: AVSpeechUtterance?
-    
-    init(_ english: String?) {
-        super.init()
-        self.english = english
-        
-    }
 }

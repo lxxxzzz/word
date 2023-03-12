@@ -12,6 +12,7 @@ import SnapKit
 class MainViewController: UIViewController {
 
     fileprivate let speechSynthesizer = AVSpeechSynthesizer()
+    var lessons = [Lesson]()
     
     var words = [Word]()
     var playIndex = 0
@@ -121,15 +122,16 @@ class MainViewController: UIViewController {
             make.height.equalTo(40)
         }
         
-        words.append(Word("smart"))
-        words.append(Word("hat"))
-        words.append(Word("same"))
-        words.append(Word("lovely"))
-        words.append(Word("colour"))
-        words.append(Word("green"))
-        words.append(Word("come"))
-        words.append(Word("upstairs"))
+//        words.append(Word("smart"))
+//        words.append(Word("hat"))
+//        words.append(Word("same"))
+//        words.append(Word("lovely"))
+//        words.append(Word("colour"))
+//        words.append(Word("green"))
+//        words.append(Word("come"))
+//        words.append(Word("upstairs"))
 
+        loadWords()
     }
     
 //    override func viewWillDisappear(_ animated: Bool) {
@@ -174,40 +176,85 @@ class MainViewController: UIViewController {
 
     
     func loadWords() {
-//        guard let path = Bundle.main.url(forResource: "新概念第一册", withExtension: "txt") else { return }
-//
-//
-//        do {
-//            let data = try Data(contentsOf: path)
-//            guard let content = String(data: data, encoding: .utf8) else { return }
-//
-//            var lessons = [Lesson]()
-//            let arr = content.split(separator: "\n")
-//            for str in arr {
-//
-//                let test = String(str)
-//                let RE = try NSRegularExpression(pattern: "Lesson.*\\d", options: .caseInsensitive)
-//                let matchs = RE.matches(in: test, options: .reportProgress, range: NSRange(location: 0, length: test.count))
-//                var lesson: Lesson?
-//                if matchs.count > 0 {
-//                    print(test)
-//                    lesson = Lesson()
-////                    lesson.number =
-//                    lesson!.title = test
-//                    lessons.append(lesson!)
-//
-//                    chineseLabel.text = test
-//                }
-//
-//                englishLabel.text = test
-//            }
-//        } catch {
-//
-//        }
+        guard let path = Bundle.main.url(forResource: "新概念第一册", withExtension: "txt") else { return }
+
+
+        do {
+            let data = try Data(contentsOf: path)
+            guard let content = String(data: data, encoding: .utf8) else { return }
+
+            
+            let arr = content.split(separator: "\n")
+            for str in arr {
+
+                let test = String(str)
+                let RE = try NSRegularExpression(pattern: "Lesson.*\\d", options: .caseInsensitive)
+                let matchs = RE.matches(in: test, options: .reportProgress, range: NSRange(location: 0, length: test.count))
+                var lesson: Lesson?
+                if matchs.count > 0 {
+                    print(test)
+                    lesson = Lesson()
+//                    lesson.number =
+                    lesson!.title = test
+                    lessons.append(lesson!)
+
+                } else {
+                    let words = test.byWords
+                    var dict = [String:String]()
+                    var text = ""
+                    let  word = Word()
+                    
+                    let soundmark = test.slice(from: "[", to: "]")
+                    
+                    for (index, str) in words.enumerated() {
+                        if index == 0 {
+                            dict["number"] = String(str)
+                            
+                            
+                        }
+
+                        if soundmark != nil && index == 1 {
+                            text.append(String(str))
+                        }
+
+                    }
+                    if let s = soundmark {
+                        let full = "[\(s)]"
+                        dict["soundmark"] = full
+
+                        dict["chinese"] = test.slice(from: full)
+                        
+                        
+
+                    }
+                    
+                    dict["english"] = text
+                    
+                    word.soundmark = dict["soundmark"]
+                    word.chinese = dict["chinese"]
+                    word.english = dict["english"]
+                    word.number = dict["number"]
+                    lesson?.words.append(word)
+                    
+                    
+                    self.words.append(word)
+                }
+
+//                words = lesson?.words
+            }
+        } catch {
+
+        }
         
     }
-    
-    
+
+    func isInt(string: String?) -> Bool {
+        guard let s = string else { return false }
+        
+        let scan: Scanner = Scanner(string: s)
+        var val:Int = 0
+        return scan.scanInt(&val) && scan.isAtEnd
+    }
     
     fileprivate func play(with word: Word) {
         englishLabel.text = word.english
@@ -222,7 +269,6 @@ class MainViewController: UIViewController {
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate
         utterance.voice = voice
         utterance.volume = 1
-//        utterance.postUtteranceDelay = 0.1
         utterance.pitchMultiplier = 1
         speechSynthesizer.speak(utterance)
     }
@@ -273,5 +319,34 @@ extension MainViewController: AVSpeechSynthesizerDelegate {
 //        let subStr = utterance.speechString.dropFirst(characterRange.location).description
 //        let rangeStr = subStr.dropLast(subStr.count - characterRange.length).description
 //        willSpeekLabel.text = rangeStr
+    }
+}
+
+extension StringProtocol { // for Swift 4 you need to add the constrain `where Index == String.Index`
+    var byWords: [SubSequence] {
+        var byWords: [SubSequence] = []
+        enumerateSubstrings(in: startIndex..., options: .byWords) { _, range, _, _ in
+            byWords.append(self[range])
+        }
+
+        return byWords
+    }
+}
+
+extension String {
+
+    func slice(from: String, to: String) -> String? {
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
+                return String(self[substringFrom..<substringTo])
+            }
+        }
+    }
+    
+    func slice(from: String) -> String? {
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+
+            String(self[substringFrom..<endIndex])
+        }
     }
 }
