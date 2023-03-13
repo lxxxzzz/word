@@ -1300,7 +1300,7 @@ Lesson 66
 
 Lesson 67
 
-greengrocer['gri:nˌgrəusə] n.蔬菜水果零售商
+1 greengrocer ['gri:nˌgrəusə] n.蔬菜水果零售商
 
 2 absent ['æbsənt, əb'sent] a.缺席的
 
@@ -1808,7 +1808,7 @@ Lesson 105
 
 1 spell [spel] v.拼写
 
-2 intelligent[in'telidʒənt] a.聪明的，有智慧的
+2 intelligent [in'telidʒənt] a.聪明的，有智慧的
 
 3 mistake [mis'teik] n.错误
 
@@ -1912,7 +1912,7 @@ Lesson 113
 
 Lesson 115
 
-anyone['eniwʌn]pron.(用于疑问句，否定式)任何人
+1 anyone ['eniwʌn]pron.(用于疑问句，否定式)任何人
 
 2 knock [nɔk] v.敲，打
 
