@@ -15,6 +15,12 @@
 		041AFBED29BDCEE6003CEEC8 /* 新概念第一册.txt in Resources */ = {isa = PBXBuildFile; fileRef = 041AFBEC29BDCEE5003CEEC8 /* 新概念第一册.txt */; };
 		041AFBEF29BDD0F9003CEEC8 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041AFBEE29BDD0F9003CEEC8 /* Word.swift */; };
 		041AFBF129BDDC61003CEEC8 /* Lesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041AFBF029BDDC61003CEEC8 /* Lesson.swift */; };
+		04B382E429BEEFFB002AC28D /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E329BEEFFB002AC28D /* Player.swift */; };
+		04B382E629BEF16F002AC28D /* SpeechSynthesizerPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E529BEF16F002AC28D /* SpeechSynthesizerPlayer.swift */; };
+		04B382E829BEF2F0002AC28D /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E729BEF2F0002AC28D /* DownloadManager.swift */; };
+		04B382EA29BEFAF8002AC28D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E929BEFAF8002AC28D /* AudioPlayer.swift */; };
+		04B382EC29BF1269002AC28D /* DBManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382EB29BF1269002AC28D /* DBManager.swift */; };
+		04B382F729BF1F7A002AC28D /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382F629BF1F7A002AC28D /* Book.swift */; };
 		7C3E217AC8ACC4E4E9049C6D /* Pods_word.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A4181219B036C6AC56B15F5 /* Pods_word.framework */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +35,12 @@
 		041AFBEC29BDCEE5003CEEC8 /* 新概念第一册.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "新概念第一册.txt"; sourceTree = "<group>"; };
 		041AFBEE29BDD0F9003CEEC8 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
 		041AFBF029BDDC61003CEEC8 /* Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lesson.swift; sourceTree = "<group>"; };
+		04B382E329BEEFFB002AC28D /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		04B382E529BEF16F002AC28D /* SpeechSynthesizerPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesizerPlayer.swift; sourceTree = "<group>"; };
+		04B382E729BEF2F0002AC28D /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		04B382E929BEFAF8002AC28D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
+		04B382EB29BF1269002AC28D /* DBManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBManager.swift; sourceTree = "<group>"; };
+		04B382F629BF1F7A002AC28D /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
 		6A4181219B036C6AC56B15F5 /* Pods_word.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_word.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8AC4E632E54C72779BC67B4 /* Pods-word.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-word.debug.xcconfig"; path = "Target Support Files/Pods-word/Pods-word.debug.xcconfig"; sourceTree = "<group>"; };
 		B75F451FFB3FCE2FAE03C0D5 /* Pods-word.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-word.release.xcconfig"; path = "Target Support Files/Pods-word/Pods-word.release.xcconfig"; sourceTree = "<group>"; };
@@ -76,6 +88,12 @@
 				041AFBE429BDC683003CEEC8 /* Info.plist */,
 				041AFBEE29BDD0F9003CEEC8 /* Word.swift */,
 				041AFBF029BDDC61003CEEC8 /* Lesson.swift */,
+				04B382F629BF1F7A002AC28D /* Book.swift */,
+				04B382E329BEEFFB002AC28D /* Player.swift */,
+				04B382E529BEF16F002AC28D /* SpeechSynthesizerPlayer.swift */,
+				04B382E729BEF2F0002AC28D /* DownloadManager.swift */,
+				04B382E929BEFAF8002AC28D /* AudioPlayer.swift */,
+				04B382EB29BF1269002AC28D /* DBManager.swift */,
 			);
 			path = word;
 			sourceTree = "<group>";
@@ -216,7 +234,13 @@
 				041AFBD729BDC67F003CEEC8 /* AppDelegate.swift in Sources */,
 				041AFBEB29BDC6C3003CEEC8 /* MainViewController.swift in Sources */,
 				041AFBEF29BDD0F9003CEEC8 /* Word.swift in Sources */,
+				04B382EA29BEFAF8002AC28D /* AudioPlayer.swift in Sources */,
+				04B382EC29BF1269002AC28D /* DBManager.swift in Sources */,
+				04B382E629BEF16F002AC28D /* SpeechSynthesizerPlayer.swift in Sources */,
+				04B382E429BEEFFB002AC28D /* Player.swift in Sources */,
 				041AFBF129BDDC61003CEEC8 /* Lesson.swift in Sources */,
+				04B382F729BF1F7A002AC28D /* Book.swift in Sources */,
+				04B382E829BEF2F0002AC28D /* DownloadManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

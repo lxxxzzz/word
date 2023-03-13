@@ -5,5 +5,6 @@ use_frameworks!
 target 'word' do
 
     pod 'SnapKit'
+    pod 'FMDB'
 
 end
