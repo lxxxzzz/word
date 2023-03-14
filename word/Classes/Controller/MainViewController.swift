@@ -10,16 +10,14 @@ import SnapKit
 
 class MainViewController: UIViewController {
 
-    let book = Book()
+    var book = Book()
     
     var words = [Word]()
     var playIndex = 0
-    var deadline: TimeInterval = 0
+    var deadline: TimeInterval = 2
     var isPaused = false
-    
     var task: DispatchWorkItem?
-    
-    
+
     lazy var englishLabel: UILabel = {
         var label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 40)
@@ -112,7 +110,7 @@ class MainViewController: UIViewController {
             make.left.equalTo(view.snp.left).offset(20)
             make.right.equalTo(view.snp.right).offset(-20)
             make.top.equalTo(view.snp.top).offset(100)
-            make.height.equalTo(40)
+            make.height.equalTo(45)
         }
         soundmarkLabel.snp.makeConstraints { make in
             make.left.right.equalTo(englishLabel)
@@ -165,13 +163,40 @@ class MainViewController: UIViewController {
             make.width.equalTo(40)
             make.height.equalTo(40)
         }
-        
-        loadWords()
-        
-        AudioPlayer.shared.delegate = self
-        
-        
 
+        loadData()
+
+        AudioPlayer.shared.delegate = self
+    }
+    
+    func loadData() {
+        guard let url = Bundle.main.url(forResource: "file/books/新概念第一册", withExtension: "plist") else { return }
+        guard let data = try? Data(contentsOf: url) else { return }
+        guard let books:[String: AnyObject] = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: AnyObject] else { return }
+
+        book.name = books["name"] as? String
+        guard let lessons = books["lessons"] as? Array<Dictionary<String, Any>> else { return  }
+        
+        for lessonDict in lessons {
+            let lesson = Lesson()
+            lesson.title = lessonDict["title"] as? String
+            lesson.book = book
+            book.lessons.append(lesson)
+            if let words = lessonDict["words"] as? Array<Dictionary<String, String>> {
+                for wordDict in words {
+                    let word = Word()
+                    word.book = book
+                    word.lesson = lesson
+                    word.english = wordDict["english"]
+                    word.soundmark = wordDict["soundmark"]
+                    word.chinese = wordDict["chinese"]
+                    word.number = wordDict["number"]
+                    lesson.words.append(word)
+                    
+                    self.words.append(word)
+                }
+            }
+        }
     }
     
     @objc func onPlay(sender: UIButton) {
@@ -185,12 +210,10 @@ class MainViewController: UIViewController {
             isPaused = false
 
             play(with: playIndex)
-
         } else {
             // 暂停
             isPaused = true
         }
-        
     }
     
     @objc func onNext() {
@@ -225,129 +248,25 @@ class MainViewController: UIViewController {
             let endIndex = max(index1, index2)
             self?.words.removeAll()
             for i in startIndex...endIndex {
-
                 if let lesson = self?.book.lessons[i] {
                     for word in lesson.words {
                         self?.words.append(word)
                     }
                 }
-                
             }
             
             self?.playIndex = 0
-            
-            
         }
         present(viewController, animated: true, completion: nil)
     }
-    
-    func loadWords() {
-        guard let path = Bundle.main.url(forResource: "新概念第一册", withExtension: "txt") else { return }
-        
-        book.id = "001"
-        book.name = "新概念第一册"
-        
-        
 
-        do {
-            let data = try Data(contentsOf: path)
-            guard let content = String(data: data, encoding: .utf8) else { return }
-
-            
-            let arr = content.split(separator: "\n")
-            var json = Array<Dictionary<String, String>>()
-            
-            var lesson: Lesson?
-            for str in arr {
-
-                let fullString = String(str)
-                
-                if fullString.isBlank {
-                    continue
-                }
-
-                let RE = try NSRegularExpression(pattern: "Lesson.*\\d", options: .caseInsensitive)
-                let matchs = RE.matches(in: fullString, options: .reportProgress, range: NSRange(location: 0, length: fullString.count))
-                
-                if matchs.count > 0 {
-                    lesson = Lesson()
-                    lesson!.id = fullString
-                    lesson!.title = fullString
-                    book.lessons.append(lesson!)
-                } else {
-                    let array = fullString.split(separator: " ")
-                    var dict = [String:String]()
-                    var text = ""
-                    var pre = ""
-                    for (index, str) in array.enumerated() {
-                        let string = String(str)
-                        
-                        if string.isBlank {
-                            continue
-                        }
-
-                        if index == 0 {
-                            // 序号
-                            dict["number"] = string
-                        }
-                        
-                        if string.isWord {
-                            
-                            if text.isBlank {
-                                text = string
-                            } else if pre.isWord {
-                                text = "\(text) \(string)"
-                            }
-                        }
-                        
-                        if index == array.count - 1 {
-                            dict["chinese"] = string
-                        }
-                        
-                        pre = string
-
-                    }
-                    if let soundmark = fullString.slice(from: "[", to: "]") {
-                        dict["soundmark"] = "[\(soundmark)]"
-                    }
-                    
-                    dict["english"] = text
-                    let  word = Word()
-                    word.soundmark = dict["soundmark"]
-                    word.chinese = dict["chinese"]
-                    word.english = dict["english"]
-                    word.number = dict["number"]
-                    word.bookid = book.id
-                    word.lessonid = lesson?.id
-                    lesson?.words.append(word)
-
-                    json.append(dict)
-                    self.words.append(word)
-
-                }
-                
-            }
-            
-            
-        } catch {
-
-        }
-        DBManager.shared.insert(book: book)
-    }
-
-    
     fileprivate func play(with word: Word, type: String) {
         guard let english = word.english else { return }
-        guard let lessonid = word.lessonid else { return }
-        guard let bookid = word.bookid else { return }
+        guard let lesson = word.lesson?.title else { return }
+        guard let book = word.book?.name else { return }
         
-        let path = "/\(bookid)/\(lessonid)/\(type)/"
-        
-//        if DownloadManager.shared.exist(with: path, word: english, type: type) != nil {
-//            playNext()
-//            return
-//        }
-        
+        let path = "/\(book)/\(lesson)/\(type)/"
+
         DownloadManager.shared.download(with: path, word: english, type: type) { error, url in
             guard error == nil else {
                 print("下载失败！！！--------->\(english)")
@@ -357,8 +276,7 @@ class MainViewController: UIViewController {
             
             guard let url = url else { return }
 
-            AudioPlayer.shared.url = url
-            AudioPlayer.shared.play()
+            AudioPlayer.shared.play(with: url)
         }
 
         englishLabel.text = word.english
@@ -401,7 +319,7 @@ extension MainViewController: AudioPlayerDelegate {
 
 
 
-extension StringProtocol { // for Swift 4 you need to add the constrain `where Index == String.Index`
+extension StringProtocol {
     var byWords: [SubSequence] {
         var byWords: [SubSequence] = []
         enumerateSubstrings(in: startIndex..., options: .byWords) { _, range, _, _ in
@@ -413,7 +331,6 @@ extension StringProtocol { // for Swift 4 you need to add the constrain `where I
 }
 
 extension String {
-
     func slice(from: String, to: String) -> String? {
         return (range(of: from)?.upperBound).flatMap { substringFrom in
             (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
@@ -431,9 +348,6 @@ extension String {
     
     var isWord: Bool {
         guard self.isBlank == false else { return false }
-        //[a-zA-Z]+[']?[a-zA-Z]+[\\.]?
-//        let regex: NSPredicate = NSPredicate(format:"SELF MATCHES %@","[a-zA-Z]+[\\.]?")
-//        let regex: NSPredicate = NSPredicate(format:"SELF MATCHES %@","[a-zA-Z]+[']?[a-zA-Z]+[\\.]?")
         let regex: NSPredicate = NSPredicate(format:"SELF MATCHES %@","[a-zA-Z]+['-]?[a-zA-Z]+[\\.]?|[a-zA-Z]+")
         return regex.evaluate(with: self)
     }
@@ -442,6 +356,4 @@ extension String {
         let trimmedStr = self.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmedStr.isEmpty
     }
-    
-    
 }

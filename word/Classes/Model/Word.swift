@@ -9,8 +9,8 @@ import UIKit
 import AVFoundation
 
 class Word: NSObject {
-    var bookid: String?
-    var lessonid: String?
+    weak var book: Book?
+    weak var lesson: Lesson?
     var number: String?
     var english: String?
     var soundmark: String?

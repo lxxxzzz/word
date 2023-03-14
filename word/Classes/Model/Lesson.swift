@@ -8,8 +8,7 @@
 import UIKit
 
 class Lesson: NSObject {
-    var bookid: String?
-    var id: String?
+    weak var book: Book?
     var title: String?
     var words: [Word] = [Word]()
     

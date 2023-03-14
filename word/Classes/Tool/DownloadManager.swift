@@ -9,13 +9,15 @@ import UIKit
 
 class DownloadManager: NSObject {
     static let shared = DownloadManager()
-    
-//    var path = "/Users/xiaohongli/Desktop/word/读音"
-    
-    var path: String {
-        guard let path = Bundle.main.path(forResource: "resources/audio", ofType: nil) else { return "" }
-        return path
-    }
+
+//    var bundlePath: String {
+//        return "\(Bundle.main.bundlePath)/file/audio"
+//    }
+//
+//    var cacehPath: String {
+//        return "\(NSHomeDirectory())/Documents/file/audio"
+//    }
+    var path = "/audio"
     
     private override init() {}
     
@@ -34,36 +36,45 @@ class DownloadManager: NSObject {
 }
 
 extension DownloadManager {
-    func exist(with path: String, word: String, type: String) -> URL? {
+    func find(fileWith path: String, filename: String) -> URL? {
+        guard FileManager.default.fileExists(atPath: path) else { return nil }
+        
         do {
-            let fullPath = "\(self.path)\(path)"
-            
-            guard FileManager.default.fileExists(atPath: fullPath) else { return nil }
-            
-            let files = try FileManager.default.contentsOfDirectory(atPath: fullPath)
-            var name = ""
-            for filename in files {
-                let firstname = filename.replacingOccurrences(of: filename.extension, with: "")
-                if firstname == word {
-                    name = filename
+            let files = try FileManager.default.contentsOfDirectory(atPath: path)
+            var findname = ""
+            for file in files {
+                let prefix = file.replacingOccurrences(of: file.extension, with: "")
+                if prefix == filename {
+                    findname = file
                     break
                 }
             }
-            guard name.isEmpty == false else {
+            guard findname.isEmpty == false else {
                 return nil
             }
-            return URL(fileURLWithPath: "\(self.path)\(path)\(name)")
-        } catch let error as NSError {
+            return URL(fileURLWithPath: "\(path)\(findname)")
+        } catch {
             print("获取文件目录失败: \(error)")
         }
-        
         return nil
+    }
+    
+    func exist(with path: String, word: String) -> URL? {
+        // 先找bundle
+        let bundlePath = "\(bundlePath)/audio\(path)"
+
+        if let url = find(fileWith: bundlePath, filename: word) {
+            return url
+        }
+        
+        // 找cache
+        return find(fileWith: "\(cachePath)/audio\(path)", filename: word)
     }
 
     
     func download(with path: String, word:String, type: String, completion: ((_ error: String?, _ filePath: URL?) -> Void)?) {
 
-        if let url = exist(with: path, word: word, type: type) {
+        if let url = exist(with: path, word: word) {
             completion?(nil, url)
             return
         }
@@ -79,7 +90,7 @@ extension DownloadManager {
         let request = URLRequest(url: taskUrl)
         let session = URLSession(configuration: .default)
         session.downloadTask(with: request) { [weak self] tempUrl, response, error in
-            guard let self = self, let tempUrl = tempUrl, error == nil else {
+            guard let tempUrl = tempUrl, error == nil else {
                 print("文件下载失败")
                 completion?("文件下载失败", nil)
                 return
@@ -87,7 +98,7 @@ extension DownloadManager {
 
             guard let servername = response?.suggestedFilename else { return }
             let filename = "\(word)\(servername.extension)"
-            var destinationPath = URL(fileURLWithPath: "\(self.path)\(path)")
+            var destinationPath = URL(fileURLWithPath: "\(cachePath)/audio\(path)")
 
             // 检查目录是否存在
             do {
@@ -99,7 +110,7 @@ extension DownloadManager {
                 completion?("文件夹目录创建失败", nil)
             }
             destinationPath = destinationPath.appendingPathComponent(filename)
-            print("文件下载 document下的可保存的url:\(destinationPath)")
+            print("文件下载document下的可保存的url:\(destinationPath)")
             do {
                 // 文件移动至document
                 try FileManager.default.copyItem(atPath: tempUrl.path, toPath: destinationPath.path)
