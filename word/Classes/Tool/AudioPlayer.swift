@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import AVKit
+import AVFoundation
 
 protocol AudioPlayerDelegate: AnyObject {
     func playEnd(player: AudioPlayer, url: URL)
@@ -19,16 +19,14 @@ class AudioPlayer: NSObject {
     weak var delegate: AudioPlayerDelegate?
     
     private var playCount: Int = 0
-    var player: AVPlayer!
-    var playerItem: AVPlayerItem!
     var url: URL!
-    
+    var player: AVAudioPlayer!
+    var task: DispatchWorkItem?
+    var isPaused: Bool = false
     
     static let shared = AudioPlayer()
-    private override init() {
-        super.init()
-        NotificationCenter.default.addObserver(self, selector: #selector(playToEndTime), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
-    }
+    
+    private override init() { }
     
     override func copy() -> Any {
         return self
@@ -44,46 +42,78 @@ class AudioPlayer: NSObject {
     }
     
     deinit {
-        NotificationCenter.default.removeObserver(self)
+        
+    }
+
+}
+
+extension AudioPlayer {
+    func play(with url: URL) {
+        self.url = url
+        do {
+            if player != nil {
+                player.stop()
+            }
+            
+            try player = AVAudioPlayer(contentsOf: url)
+            player.delegate = self
+            play()
+        } catch {
+            print("播放器创建失败")
+        }
     }
     
-    @objc func playToEndTime() {
-        playCount += 1
+    func play() {
+        isPaused = false
         
+        print(player.prepareToPlay())
+        
+        let flag = player.play()
+        if flag {
+            print("播放成功")
+        } else {
+            print("播放失败")
+        }
+    }
+
+    func pause() {
+        task?.cancel()
+        
+        isPaused = true
+        
+        player.pause()
+    }
+    
+    func stop() {
+        task?.cancel()
+        
+        player.stop()
+    }
+}
+
+extension AudioPlayer: AVAudioPlayerDelegate {
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        guard flag else { return }
+        
+        playCount += 1
+
         guard playCount < repeatCount else {
             print("播放完成")
             delegate?.playEnd(player: self, url: url)
             playCount = 0
             return
         }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + repeatInterval) {
-            self.replay()
+
+        task = DispatchWorkItem { [weak self] in
+            guard self?.isPaused == false else { return }
+            
+            player.play()
         }
-    }
-}
-
-extension AudioPlayer {
-    func play(with url: URL) {
-        self.url = url
-        playerItem = AVPlayerItem(url: url)
-        player = AVPlayer(playerItem: playerItem)
-        player.rate = 1
-        player.play()
-
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + repeatInterval, execute: task!)
     }
     
-    func replay() {
-        guard player != nil else { return }
-
-        let time = CMTimeMake(value: Int64(floorf(0)), timescale: 1)
-        player.seek(to: time)
-        player.play()
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        print(error?.localizedDescription)
     }
-    
-    func pause() {
-        player.pause()
-    }
-    
-    
 }

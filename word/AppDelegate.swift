@@ -20,13 +20,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = MainViewController()
         window?.makeKeyAndVisible()
         
-//        do {
-//            try AVAudioSession.sharedInstance().setCategory(.playback)
-//            try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
-//        } catch {
-//            
-//        }
-        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback)
+            try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            
+        }
+
         return true
     }
 

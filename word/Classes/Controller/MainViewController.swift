@@ -5,6 +5,11 @@
 //  Created by 小红李 on 2023/3/12.
 //
 
+
+/**
+ 1、停止后显示所有听写过的单词
+ */
+
 import UIKit
 import SnapKit
 
@@ -15,7 +20,6 @@ class MainViewController: UIViewController {
     var words = [Word]()
     var playIndex = 0
     var deadline: TimeInterval = 2
-    var isPaused = false
     var task: DispatchWorkItem?
 
     lazy var englishLabel: UILabel = {
@@ -94,6 +98,8 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        UIApplication.shared.isIdleTimerDisabled = true
+        
         view.backgroundColor = UIColor(red: 43.0 / 255.0, green: 44.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
 
         view.addSubview(englishLabel)
@@ -167,6 +173,7 @@ class MainViewController: UIViewController {
         loadData()
 
         AudioPlayer.shared.delegate = self
+        
     }
     
     func loadData() {
@@ -200,19 +207,21 @@ class MainViewController: UIViewController {
     }
     
     @objc func onPlay(sender: UIButton) {
-        guard words.count > 0 else { return }
-        guard playIndex < words.count else { return }
-
         sender.isSelected = !sender.isSelected
 
         if sender.isSelected {
             // 播放
-            isPaused = false
+            if AudioPlayer.shared.isPaused {
+                print("继续播放")
+                AudioPlayer.shared.play()
+            } else {
+                print("播放新的")
+                play(with: playIndex)
+            }
 
-            play(with: playIndex)
         } else {
             // 暂停
-            isPaused = true
+            AudioPlayer.shared.pause()
         }
     }
     
@@ -307,7 +316,7 @@ class MainViewController: UIViewController {
 
 extension MainViewController: AudioPlayerDelegate {
     func playEnd(player: AudioPlayer, url: URL) {
-        guard isPaused == false else { return }
+        guard AudioPlayer.shared.isPaused == false else { return }
         
         task = DispatchWorkItem { [weak self] in
             self?.playNext()
