@@ -15,7 +15,7 @@ protocol AudioPlayerDelegate: AnyObject {
 class AudioPlayer: NSObject {
     
     var repeatCount: Int = 2
-    var repeatInterval: TimeInterval = 2
+    var repeatInterval: Double = 2
     weak var delegate: AudioPlayerDelegate?
     
     private var playCount: Int = 0
@@ -26,7 +26,9 @@ class AudioPlayer: NSObject {
     
     static let shared = AudioPlayer()
     
-    private override init() { }
+    private override init() {
+
+    }
     
     override func copy() -> Any {
         return self
@@ -48,6 +50,19 @@ class AudioPlayer: NSObject {
 }
 
 extension AudioPlayer {
+    func prepareToPlay(with url: URL) -> Bool {
+        self.url = url
+        do {
+            try player = AVAudioPlayer(contentsOf: url)
+            player.delegate = self
+            return player.prepareToPlay()
+        } catch {
+            print("播放器创建失败")
+        }
+        
+        return false
+    }
+    
     func play(with url: URL) {
         self.url = url
         do {
@@ -65,9 +80,7 @@ extension AudioPlayer {
     
     func play() {
         isPaused = false
-        
-        print(player.prepareToPlay())
-        
+
         let flag = player.play()
         if flag {
             print("播放成功")

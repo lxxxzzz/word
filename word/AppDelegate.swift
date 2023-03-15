@@ -16,8 +16,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.backgroundColor = .white
-        window?.rootViewController = MainViewController()
+        window?.backgroundColor = UIColor(red: 43.0 / 255.0, green: 44.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
+        window?.rootViewController = BaseNavigationController(rootViewController: WordDictationViewController())
         window?.makeKeyAndVisible()
         
         do {
@@ -28,6 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         return true
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
     }
 
 }

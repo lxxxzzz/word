@@ -16,14 +16,17 @@
 		041AFBEF29BDD0F9003CEEC8 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041AFBEE29BDD0F9003CEEC8 /* Word.swift */; };
 		041AFBF129BDDC61003CEEC8 /* Lesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041AFBF029BDDC61003CEEC8 /* Lesson.swift */; };
 		046E50E029BF53EA005FFA5D /* SelectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 046E50DF29BF53EA005FFA5D /* SelectViewController.swift */; };
-		04B382E429BEEFFB002AC28D /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E329BEEFFB002AC28D /* Player.swift */; };
-		04B382E629BEF16F002AC28D /* SpeechSynthesizerPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E529BEF16F002AC28D /* SpeechSynthesizerPlayer.swift */; };
 		04B382E829BEF2F0002AC28D /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E729BEF2F0002AC28D /* DownloadManager.swift */; };
 		04B382EA29BEFAF8002AC28D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E929BEFAF8002AC28D /* AudioPlayer.swift */; };
 		04B382F729BF1F7A002AC28D /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382F629BF1F7A002AC28D /* Book.swift */; };
 		04B38AEF29C00EBD002AC28D /* file in Resources */ = {isa = PBXBuildFile; fileRef = 04B38AEE29C00EBD002AC28D /* file */; };
 		04B38AF129C01F94002AC28D /* Parse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B38AF029C01F94002AC28D /* Parse.swift */; };
 		04B38AF329C020A1002AC28D /* GlobalDefines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B38AF229C020A1002AC28D /* GlobalDefines.swift */; };
+		04E501C529C1581D00265461 /* DictationResultViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E501C429C1581D00265461 /* DictationResultViewController.swift */; };
+		04E501C729C159E700265461 /* WordDictationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E501C629C159E700265461 /* WordDictationViewController.swift */; };
+		04E501CA29C15DC700265461 /* BaseNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E501C929C15DC700265461 /* BaseNavigationController.swift */; };
+		04E501CC29C192AB00265461 /* DictationSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E501CB29C192AB00265461 /* DictationSettingsViewController.swift */; };
+		04E501CF29C1A92400265461 /* FontHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E501CE29C1A92400265461 /* FontHelper.swift */; };
 		BD98589B7BF5741F30F72295 /* Pods_word.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95E56A9C4F63367FBB0F95B3 /* Pods_word.framework */; };
 /* End PBXBuildFile section */
 
@@ -39,14 +42,17 @@
 		041AFBEE29BDD0F9003CEEC8 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
 		041AFBF029BDDC61003CEEC8 /* Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lesson.swift; sourceTree = "<group>"; };
 		046E50DF29BF53EA005FFA5D /* SelectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectViewController.swift; sourceTree = "<group>"; };
-		04B382E329BEEFFB002AC28D /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
-		04B382E529BEF16F002AC28D /* SpeechSynthesizerPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesizerPlayer.swift; sourceTree = "<group>"; };
 		04B382E729BEF2F0002AC28D /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		04B382E929BEFAF8002AC28D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		04B382F629BF1F7A002AC28D /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
 		04B38AEE29C00EBD002AC28D /* file */ = {isa = PBXFileReference; lastKnownFileType = folder; path = file; sourceTree = "<group>"; };
 		04B38AF029C01F94002AC28D /* Parse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parse.swift; sourceTree = "<group>"; };
 		04B38AF229C020A1002AC28D /* GlobalDefines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDefines.swift; sourceTree = "<group>"; };
+		04E501C429C1581D00265461 /* DictationResultViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationResultViewController.swift; sourceTree = "<group>"; };
+		04E501C629C159E700265461 /* WordDictationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDictationViewController.swift; sourceTree = "<group>"; };
+		04E501C929C15DC700265461 /* BaseNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseNavigationController.swift; sourceTree = "<group>"; };
+		04E501CB29C192AB00265461 /* DictationSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationSettingsViewController.swift; sourceTree = "<group>"; };
+		04E501CE29C1A92400265461 /* FontHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontHelper.swift; sourceTree = "<group>"; };
 		7F63EBB46E73E81E19C70881 /* Pods-word.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-word.debug.xcconfig"; path = "Target Support Files/Pods-word/Pods-word.debug.xcconfig"; sourceTree = "<group>"; };
 		95E56A9C4F63367FBB0F95B3 /* Pods_word.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_word.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A7D197B0FD56A909486EAF4A /* Pods-word.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-word.release.xcconfig"; path = "Target Support Files/Pods-word/Pods-word.release.xcconfig"; sourceTree = "<group>"; };
@@ -100,6 +106,8 @@
 		046E50E229BF6612005FFA5D /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				04E501CD29C1A90900265461 /* Helper */,
+				04E501C829C15B9000265461 /* View */,
 				046E50E529BF6639005FFA5D /* Tool */,
 				046E50E429BF6629005FFA5D /* Model */,
 				046E50E329BF661E005FFA5D /* Controller */,
@@ -111,7 +119,11 @@
 			isa = PBXGroup;
 			children = (
 				041AFBEA29BDC6C3003CEEC8 /* MainViewController.swift */,
+				04E501C629C159E700265461 /* WordDictationViewController.swift */,
 				046E50DF29BF53EA005FFA5D /* SelectViewController.swift */,
+				04E501C429C1581D00265461 /* DictationResultViewController.swift */,
+				04E501C929C15DC700265461 /* BaseNavigationController.swift */,
+				04E501CB29C192AB00265461 /* DictationSettingsViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -129,14 +141,27 @@
 		046E50E529BF6639005FFA5D /* Tool */ = {
 			isa = PBXGroup;
 			children = (
-				04B382E329BEEFFB002AC28D /* Player.swift */,
-				04B382E529BEF16F002AC28D /* SpeechSynthesizerPlayer.swift */,
 				04B382E729BEF2F0002AC28D /* DownloadManager.swift */,
 				04B382E929BEFAF8002AC28D /* AudioPlayer.swift */,
 				04B38AF029C01F94002AC28D /* Parse.swift */,
 				04B38AF229C020A1002AC28D /* GlobalDefines.swift */,
 			);
 			path = Tool;
+			sourceTree = "<group>";
+		};
+		04E501C829C15B9000265461 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		04E501CD29C1A90900265461 /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				04E501CE29C1A92400265461 /* FontHelper.swift */,
+			);
+			path = Helper;
 			sourceTree = "<group>";
 		};
 		4A70F710ED379A8C18CF0CA0 /* Pods */ = {
@@ -273,18 +298,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04E501CA29C15DC700265461 /* BaseNavigationController.swift in Sources */,
+				04E501C529C1581D00265461 /* DictationResultViewController.swift in Sources */,
 				041AFBD729BDC67F003CEEC8 /* AppDelegate.swift in Sources */,
 				04B38AF329C020A1002AC28D /* GlobalDefines.swift in Sources */,
 				04B38AF129C01F94002AC28D /* Parse.swift in Sources */,
 				041AFBEB29BDC6C3003CEEC8 /* MainViewController.swift in Sources */,
+				04E501CF29C1A92400265461 /* FontHelper.swift in Sources */,
 				041AFBEF29BDD0F9003CEEC8 /* Word.swift in Sources */,
+				04E501C729C159E700265461 /* WordDictationViewController.swift in Sources */,
 				04B382EA29BEFAF8002AC28D /* AudioPlayer.swift in Sources */,
-				04B382E629BEF16F002AC28D /* SpeechSynthesizerPlayer.swift in Sources */,
-				04B382E429BEEFFB002AC28D /* Player.swift in Sources */,
 				041AFBF129BDDC61003CEEC8 /* Lesson.swift in Sources */,
 				04B382F729BF1F7A002AC28D /* Book.swift in Sources */,
 				046E50E029BF53EA005FFA5D /* SelectViewController.swift in Sources */,
 				04B382E829BEF2F0002AC28D /* DownloadManager.swift in Sources */,
+				04E501CC29C192AB00265461 /* DictationSettingsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

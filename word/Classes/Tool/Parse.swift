@@ -120,3 +120,41 @@ class Parse: NSObject {
     }
 }
 
+extension String {
+    func slice(from: String, to: String) -> String? {
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
+                return String(self[substringFrom..<substringTo])
+            }
+        }
+    }
+    
+    func slice(from: String) -> String? {
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+
+            String(self[substringFrom..<endIndex])
+        }
+    }
+    
+    var isWord: Bool {
+        guard self.isBlank == false else { return false }
+        let regex: NSPredicate = NSPredicate(format:"SELF MATCHES %@","[a-zA-Z]+['-]?[a-zA-Z]+[\\.]?|[a-zA-Z]+")
+        return regex.evaluate(with: self)
+    }
+    
+    var isBlank: Bool {
+        let trimmedStr = self.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmedStr.isEmpty
+    }
+}
+
+extension StringProtocol {
+    var byWords: [SubSequence] {
+        var byWords: [SubSequence] = []
+        enumerateSubstrings(in: startIndex..., options: .byWords) { _, range, _, _ in
+            byWords.append(self[range])
+        }
+
+        return byWords
+    }
+}
