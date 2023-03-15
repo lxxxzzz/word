@@ -81,14 +81,15 @@ class WordDictationViewController: UIViewController {
     
     lazy var hiddenButton: UIButton = {
         var button = UIButton()
-        button.backgroundColor = .red
+        button.setImage(UIImage(named: "eye_hidden"), for: .normal)
+        button.setImage(UIImage(named: "eye_show"), for: .selected)
         button.addTarget(self, action: #selector(onHidden(sender:)), for: .touchUpInside)
         return button
     }()
     
     lazy var selectButton: UIButton = {
         var button = UIButton()
-        button.backgroundColor = .red
+        button.setImage(UIImage(named: "list"), for: .normal)
         button.addTarget(self, action: #selector(onSelect), for: .touchUpInside)
         return button
     }()
@@ -170,19 +171,17 @@ class WordDictationViewController: UIViewController {
             make.width.equalTo(40)
             make.height.equalTo(40)
         }
-        
         hiddenButton.snp.makeConstraints { make in
             make.centerY.equalTo(playButton.snp.centerY)
             make.right.equalTo(toolBar.snp.right).offset(-20)
-            make.width.equalTo(40)
-            make.height.equalTo(40)
+            make.width.equalTo(35)
+            make.height.equalTo(35)
         }
-        
         selectButton.snp.makeConstraints { make in
             make.centerY.equalTo(playButton.snp.centerY)
             make.left.equalTo(toolBar.snp.left).offset(20)
-            make.width.equalTo(40)
-            make.height.equalTo(40)
+            make.width.equalTo(35)
+            make.height.equalTo(35)
         }
     }
     

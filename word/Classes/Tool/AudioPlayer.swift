@@ -125,8 +125,4 @@ extension AudioPlayer: AVAudioPlayerDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + repeatInterval, execute: task!)
     }
-    
-    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        print(error?.localizedDescription)
-    }
 }
