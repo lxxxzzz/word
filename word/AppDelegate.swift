@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.backgroundColor = UIColor(red: 43.0 / 255.0, green: 44.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
-        window?.rootViewController = BaseNavigationController(rootViewController: WordDictationViewController())
+        window?.rootViewController = BaseNavigationController(rootViewController: WordChoiceViewController())
         window?.makeKeyAndVisible()
         
         do {

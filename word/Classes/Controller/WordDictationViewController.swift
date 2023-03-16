@@ -8,14 +8,18 @@
 import UIKit
 import SnapKit
 
+let PrepareToPlayNotification = NSNotification.Name(rawValue: "PrepareToPlayNotification")
+
 class WordDictationViewController: UIViewController {
     
     let repeatCountKey = "__repeat_count_cache_key__"
     let repeatIntervalKey = "__repeat_interval_cache_key__"
     let deadlineKey = "__deadline_cache_key__"
     
-    var book = Book()
     var words = [Word]()
+    
+    var lessons: [Lesson]?
+    
     var playIndex = 0
     var deadline: Double = 2
     var task: DispatchWorkItem?
@@ -87,10 +91,10 @@ class WordDictationViewController: UIViewController {
         return button
     }()
     
-    lazy var selectButton: UIButton = {
+    lazy var wordListButton: UIButton = {
         var button = UIButton()
         button.setImage(UIImage(named: "list"), for: .normal)
-        button.addTarget(self, action: #selector(onSelect), for: .touchUpInside)
+        button.addTarget(self, action: #selector(onList), for: .touchUpInside)
         return button
     }()
     
@@ -101,13 +105,18 @@ class WordDictationViewController: UIViewController {
         
         setupUI()
 
-        loadData()
-
         setupAudioPlayer()
+        
+        if let lessons = self.lessons {
+            for lesson in lessons {
+                for word in lesson.words {
+                    words.append(word)
+                }
+            }
+            
+            prepareToPlay(with: playIndex, completion: nil)
+        }
 
-        prepareToPlay(with: playIndex, completion: nil)
-        
-        
         if let deadline: Double = UserDefaults.standard.object(forKey: deadlineKey) as? Double {
             self.deadline = deadline
         }
@@ -115,7 +124,8 @@ class WordDictationViewController: UIViewController {
     }
     
     func setupUI() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "设置", style: .done, target: self, action: #selector(onSettings))
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(imageNamed: "settings", target: self, action: #selector(onSettings))
         view.backgroundColor = UIColor(red: 43.0 / 255.0, green: 44.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
 
         view.addSubview(englishLabel)
@@ -127,7 +137,7 @@ class WordDictationViewController: UIViewController {
         toolBar.addSubview(previousButton)
         toolBar.addSubview(nextButton)
         toolBar.addSubview(hiddenButton)
-        toolBar.addSubview(selectButton)
+        toolBar.addSubview(wordListButton)
         englishLabel.snp.makeConstraints { make in
             make.left.equalTo(view.snp.left).offset(20)
             make.right.equalTo(view.snp.right).offset(-20)
@@ -174,10 +184,10 @@ class WordDictationViewController: UIViewController {
         hiddenButton.snp.makeConstraints { make in
             make.centerY.equalTo(playButton.snp.centerY)
             make.right.equalTo(toolBar.snp.right).offset(-20)
-            make.width.equalTo(35)
-            make.height.equalTo(35)
+            make.width.equalTo(30)
+            make.height.equalTo(30)
         }
-        selectButton.snp.makeConstraints { make in
+        wordListButton.snp.makeConstraints { make in
             make.centerY.equalTo(playButton.snp.centerY)
             make.left.equalTo(toolBar.snp.left).offset(20)
             make.width.equalTo(35)
@@ -196,41 +206,6 @@ class WordDictationViewController: UIViewController {
         }
     
         AudioPlayer.shared.delegate = self
-    }
-    
-    func loadData() {
-        guard let url = Bundle.main.url(forResource: "file/books/新概念第一册", withExtension: "plist") else { return }
-        guard let data = try? Data(contentsOf: url) else { return }
-        guard let books:[String: AnyObject] = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: AnyObject] else { return }
-
-        book.name = books["name"] as? String
-        guard let lessons = books["lessons"] as? Array<Dictionary<String, Any>> else { return  }
-        
-        for lessonDict in lessons {
-            let lesson = Lesson()
-            lesson.title = lessonDict["title"] as? String
-            lesson.book = book
-            book.lessons.append(lesson)
-            if let words = lessonDict["words"] as? Array<Dictionary<String, String>> {
-                for wordDict in words {
-                    let word = Word()
-                    word.book = book
-                    word.lesson = lesson
-                    word.english = wordDict["english"]
-                    word.soundmark = wordDict["soundmark"]
-                    word.chinese = wordDict["chinese"]
-                    word.number = wordDict["number"]
-                    lesson.words.append(word)
-
-                    self.words.append(word)
-                }
-            }
-        }
-        
-        guard let firstLesson: Lesson = book.lessons.first else { return }
-        guard let lastLesson: Lesson = book.lessons.last else { return }
-        title = "\(firstLesson.title ?? "")~\(lastLesson.title ?? "")"
-
     }
     
     @objc func onSettings() {
@@ -276,31 +251,14 @@ class WordDictationViewController: UIViewController {
         chineseLabel.isHidden = sender.isSelected
     }
 
-    @objc func onSelect() {
-        let viewController = SelectViewController()
-        viewController.data = book.lessons
-        viewController.selectHandler = { [weak self] start, end in
-            print("选择了\(start.title!)~\(end.title!)")
-            
-            guard let wself = self else { return }
-            
-            guard let index1 = wself.book.lessons.firstIndex(of: start) else { return }
-            guard let index2 = wself.book.lessons.firstIndex(of: end) else { return }
-            
-            let startIndex = min(index1, index2)
-            let endIndex = max(index1, index2)
-            wself.words.removeAll()
-            for i in startIndex...endIndex {
-                let lesson = wself.book.lessons[i]
-                for word in lesson.words {
-                    wself.words.append(word)
-                }
-            }
-            
-            wself.playIndex = 0
-            wself.prepareToPlay(with: wself.playIndex, completion: nil)
-            wself.title = "\(start.title ?? "")~\(end.title ?? "")"
+    @objc func onList() {
+        let viewController = WordListViewController()
+        viewController.words = words
+        
+        if playIndex >= 0 && words.count > 0 && playIndex < words.count {
+            viewController.word = words[playIndex]
         }
+
         let nav = BaseNavigationController(rootViewController: viewController)
         nav.modalPresentationStyle = .overFullScreen
         present(nav, animated: true, completion: nil)
@@ -357,6 +315,7 @@ class WordDictationViewController: UIViewController {
                 return
             }
 
+            NotificationCenter.default.post(name: PrepareToPlayNotification, object: word)
             let flag = AudioPlayer.shared.prepareToPlay(with: url)
             completion?(flag)
         }

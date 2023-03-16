@@ -46,14 +46,7 @@ class BaseNavigationController: UINavigationController {
         if self.viewControllers.count > 0 {
             viewController.hidesBottomBarWhenPushed = self.viewControllers.count == 1
             
-            let target = viewController.responds(to: #selector(onBack)) ? viewController : self
-            let button = UIButton()
-            button.setImage(UIImage(named: "back"), for: .normal)
-            button.titleLabel?.font = UIFont.systemFont(ofSize: 15)
-            button.setTitleColor(.white, for: .normal)
-            button.addTarget(target, action: #selector(onBack), for: .touchUpInside)
-            
-            viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: button)
+            viewController.navigationItem.leftBarButtonItem = UIBarButtonItem.backItem(target: target, action: #selector(onBack))
         }
         super.pushViewController(viewController, animated: animated)
     }
@@ -65,4 +58,20 @@ class BaseNavigationController: UINavigationController {
     @objc private func onBack() {
         popViewController(animated: true)
     }
+}
+
+extension UIBarButtonItem {
+    public static func backItem(target: Any?, action: Selector) -> UIBarButtonItem {
+        return UIBarButtonItem(imageNamed: "back", target: target, action: action)
+    }
+    
+    convenience init(imageNamed: String, target: Any?, action: Selector) {
+        let button = UIButton(frame: CGRect(x: 0, y: 0, width: 30, height: 40))
+        button.setImage(UIImage(named: imageNamed), for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 15)
+        button.setTitleColor(.white, for: .normal)
+        button.addTarget(target, action: action, for: .touchUpInside)
+        self.init(customView: button)
+    }
+    
 }
