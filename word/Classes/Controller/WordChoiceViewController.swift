@@ -9,7 +9,7 @@ import UIKit
 
 class WordChoiceViewController: UIViewController {
     
-    var book = Book()
+    var book: Book!
     var words = [Word]()
 
     var startLesson: Lesson?
@@ -50,7 +50,9 @@ class WordChoiceViewController: UIViewController {
 
         setupUI()
         
-        loadData()
+        if let book = book, book.lessons.count == 0 {
+            book.lessons = DB.shared.allLessons(with: book)
+        }
     }
 
     deinit {
@@ -74,36 +76,6 @@ class WordChoiceViewController: UIViewController {
             make.bottom.equalTo(view.snp.bottom).offset(-40)
             make.left.equalTo(view.snp.left).offset(30)
             make.right.equalTo(view.snp.right).offset(-30)
-        }
-    }
-    
-    func loadData() {
-        guard let url = Bundle.main.url(forResource: "file/books/新概念第一册", withExtension: "plist") else { return }
-        guard let data = try? Data(contentsOf: url) else { return }
-        guard let books:[String: AnyObject] = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: AnyObject] else { return }
-
-        book.name = books["name"] as? String
-        guard let lessons = books["lessons"] as? Array<Dictionary<String, Any>> else { return  }
-        
-        for lessonDict in lessons {
-            let lesson = Lesson()
-            lesson.title = lessonDict["title"] as? String
-            lesson.book = book
-            book.lessons.append(lesson)
-            if let words = lessonDict["words"] as? Array<Dictionary<String, String>> {
-                for wordDict in words {
-                    let word = Word()
-                    word.book = book
-                    word.lesson = lesson
-                    word.english = wordDict["english"]
-                    word.soundmark = wordDict["soundmark"]
-                    word.chinese = wordDict["chinese"]
-                    word.number = wordDict["number"]
-                    lesson.words.append(word)
-
-                    self.words.append(word)
-                }
-            }
         }
     }
 
@@ -142,7 +114,7 @@ class WordChoiceViewController: UIViewController {
         }
         
         let viewController = WordDictationViewController()
-        viewController.title = "\(start.title ?? "")~\(end.title ?? "")"
+        viewController.title = "Lesson \(start.number ?? 0)~Lesson\(end.number ?? 0)"
         viewController.lessons = lessons
         navigationController?.pushViewController(viewController, animated: true)
         
@@ -188,7 +160,7 @@ extension WordChoiceViewController: UITableViewDelegate, UITableViewDataSource {
             cell.choice = true
         }
 
-        cell.textLabel?.text = lesson.title
+        cell.textLabel?.text = "Lesson \(lesson.number ?? 0) \(lesson.name ?? "") \(lesson.name_cn ?? "")"
         cell.textLabel?.textColor = .white
         cell.backgroundColor = UIColor(red: 43.0 / 255.0, green: 44.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
         return cell

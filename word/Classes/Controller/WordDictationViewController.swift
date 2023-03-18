@@ -16,7 +16,7 @@ class WordDictationViewController: UIViewController {
     let repeatIntervalKey = "__repeat_interval_cache_key__"
     let deadlineKey = "__deadline_cache_key__"
     
-    var words = [Word]()
+    private var words = [Word]()
     
     var lessons: [Lesson]?
     
@@ -114,7 +114,12 @@ class WordDictationViewController: UIViewController {
                 }
             }
             
-            prepareToPlay(with: playIndex, completion: nil)
+            let flag = prepareToPlay(with: playIndex)
+            if flag {
+                print("准备成功")
+            } else {
+                print("准备失败")
+            }
         }
 
         if let deadline: Double = UserDefaults.standard.object(forKey: deadlineKey) as? Double {
@@ -253,8 +258,8 @@ class WordDictationViewController: UIViewController {
 
     @objc func onList() {
         let viewController = WordListViewController()
-        viewController.words = words
-        
+//        viewController.words = words
+        viewController.lessons = lessons
         if playIndex >= 0 && words.count > 0 && playIndex < words.count {
             viewController.word = words[playIndex]
         }
@@ -264,85 +269,57 @@ class WordDictationViewController: UIViewController {
         present(nav, animated: true, completion: nil)
     }
     
-    fileprivate func prepareToPlay(with index: Int, completion: ((_ success: Bool) -> Void)?) {
+    fileprivate func prepareToPlay(with index: Int) -> Bool {
         guard playIndex >= 0 else {
-            completion?(false)
-            return
+            return false
         }
         guard words.count > 0 else {
-            completion?(false)
-            return
+            return false
         }
         guard playIndex < words.count else {
-            completion?(false)
-            return
+            return false
         }
         
-        let type = "0"
         let word = words[playIndex]
 
         countLabel.text = "\(playIndex + 1) / \(words.count)"
-        
-        guard let english = word.english else {
-            completion?(false)
-            return
-        }
-        guard let lesson = word.lesson?.title else {
-            completion?(false)
-            return
-        }
-        guard let book = word.book?.name else {
-            completion?(false)
-            return
-        }
+    
         
         englishLabel.text = word.english
         chineseLabel.text = word.chinese
-        soundmarkLabel.text = word.soundmark
         
-        let path = "/\(book)/\(lesson)/\(type)/"
         
-        DownloadManager.shared.download(with: path, word: english, type: type) { error, url in
-            guard error == nil else {
-                completion?(false)
-                print("下载失败！！！--------->\(english)")
-                print(error!)
-                return
-            }
-            
-            guard let url = url else {
-                completion?(false)
-                return
-            }
-
-            NotificationCenter.default.post(name: PrepareToPlayNotification, object: word)
-            let flag = AudioPlayer.shared.prepareToPlay(with: url)
-            completion?(flag)
+        if let soundmark = word.soundmark_us {
+            soundmarkLabel.text = "[\(soundmark)]"
         }
         
+        guard let audio_path_us = word.audio_path_us else {
+            return false
+        }
+
+        let url = URL(fileURLWithPath: "\(path)/audio/\(audio_path_us)")
+        
+        NotificationCenter.default.post(name: PrepareToPlayNotification, object: word)
+        return AudioPlayer.shared.prepareToPlay(with: url)
     }
     
     fileprivate func playNext() {
         playIndex += 1
 
-        prepareToPlay(with: playIndex) { success in
-            guard success else {
-                print("准备失败")
-                return
-            }
+        if prepareToPlay(with: playIndex) {
             AudioPlayer.shared.play()
+        } else {
+            print("准备失败")
         }
     }
     
     fileprivate func playPrevious() {
         playIndex -= 1
-        
-        prepareToPlay(with: playIndex) { success in
-            guard success else {
-                print("准备失败")
-                return
-            }
+
+        if prepareToPlay(with: playIndex) {
             AudioPlayer.shared.play()
+        } else {
+            print("准备失败")
         }
     }
 }
@@ -381,4 +358,113 @@ extension WordDictationViewController: DictationSettingsViewControllerDelegate {
     }
 }
 
+
+
+/**
+ let path = "/Users/xiaohongli/Desktop/mp3"
+ let uk_path = "\(word.book!.name!)/Lesson \(word.lesson!.number!)/uk"
+ let us_path = "\(word.book!.name!)/Lesson \(word.lesson!.number!)/us"
+ 
+ let full_uk_path = "\(path)/\(uk_path)"
+ let full_us_path = "\(path)/\(us_path)"
+ 
+ let group = DispatchGroup()
+ group.enter()
+ 
+ var success = false
+ 
+ if word.english == "Wayle" {
+     print("error")
+ }
+ 
+ DownloadManager.shared.download(with: word.audio_url_uk!, path: full_uk_path, word: word.english!) { error, filePath, filename in
+     
+     
+     
+     if error == nil {
+         let flag = AudioPlayer.shared.prepareToPlay(with: filePath!)
+         
+         if flag == false {
+             print("\(word.english) uk 播放失败 \(word.audio_url_uk!)")
+             DownloadManager.shared.download(with: full_uk_path, word: word.english!, type: "1") { error, filePath in
+                 if error != nil {
+                     print("uk下载失败\(word.english)")
+                 } else {
+                     print("有道下载成功")
+                     success = true
+                     DB.shared.db.executeUpdate("UPDATE t_words set audio_path_uk = ? where id = ?", withArgumentsIn: ["\(uk_path)/\(filename)", word.id])
+                     
+                 }
+                 group.leave()
+             }
+         } else {
+             success = true
+             DB.shared.db.executeUpdate("UPDATE t_words set audio_path_uk = ? where id = ?", withArgumentsIn: ["\(uk_path)/\(filename)", word.id])
+             group.leave()
+         }
+     } else {
+         DownloadManager.shared.download(with: full_uk_path, word: word.english!, type: "1") { error, filePath in
+             if error != nil {
+                 print("uk下载失败\(word.english)")
+             } else {
+                 print("有道下载成功")
+                 success = true
+                 DB.shared.db.executeUpdate("UPDATE t_words set audio_path_uk = ? where id = ?", withArgumentsIn: ["\(uk_path)/\(filename)", word.id])
+                 
+             }
+             group.leave()
+         }
+         
+         
+     }
+     
+ }
+ 
+ group.enter()
+ DownloadManager.shared.download(with: word.audio_url_us!, path: full_us_path, word: word.english!) { error, filePath, filename in
+     if error == nil {
+         let flag = AudioPlayer.shared.prepareToPlay(with: filePath!)
+         if flag == false {
+             print("\(word.english)  us 播放失败 \(word.audio_url_us!)")
+             DownloadManager.shared.download(with: full_us_path, word: word.english!, type: "0") { error, filePath in
+                 if error != nil {
+                     print("us下载失败\(word.english)")
+                 } else {
+                     print("有道下载成功")
+                     success = true
+                     DB.shared.db.executeUpdate("UPDATE t_words set audio_path_us = ? where id = ?", withArgumentsIn: ["\(us_path)/\(filename)", word.id])
+                 }
+                 group.leave()
+             }
+         } else {
+             success = true
+             DB.shared.db.executeUpdate("UPDATE t_words set audio_path_us = ? where id = ?", withArgumentsIn: ["\(us_path)/\(filename)", word.id])
+             group.leave()
+         }
+     } else {
+         DownloadManager.shared.download(with: full_us_path, word: word.english!, type: "0") { error, filePath in
+             if error != nil {
+                 print("us下载失败\(word.english)")
+             } else {
+                 print("有道下载成功")
+                 success = true
+                 DB.shared.db.executeUpdate("UPDATE t_words set audio_path_us = ? where id = ?", withArgumentsIn: ["\(us_path)/\(filename)", word.id])
+             }
+             group.leave()
+         }
+     }
+ }
+ 
+ group.notify(queue: .main) {
+     NotificationCenter.default.post(name: PrepareToPlayNotification, object: word)
+     
+     if success {
+         self.playIndex += 1
+         self.prepareToPlay(with: self.playIndex, completion: nil)
+     } else {
+         print("---------------")
+         
+     }
+ }
+ */
 

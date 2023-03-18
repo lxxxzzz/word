@@ -65,7 +65,7 @@ extension DictationResultViewController: UITableViewDelegate, UITableViewDataSou
         if let data = data {
             let word = data[indexPath.row]
             cell.textLabel?.textColor = .white
-            cell.textLabel?.text = "\(word.english ?? "") \(word.soundmark ?? "") \(word.chinese ?? "")"
+            cell.textLabel?.text = "\(word.english ?? "") \(word.soundmark_us ?? "") \(word.chinese ?? "")"
         }
         return cell
     }

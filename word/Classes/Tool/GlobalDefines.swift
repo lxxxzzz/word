@@ -7,11 +7,7 @@
 
 import Foundation
 
-var cachePath: String {
-    return "\(NSHomeDirectory())/Documents/file"
-}
-
-var bundlePath: String {
+var path: String {
     return "\(Bundle.main.bundlePath)/file"
 }
 

@@ -10,13 +10,6 @@ import UIKit
 class DownloadManager: NSObject {
     static let shared = DownloadManager()
 
-//    var bundlePath: String {
-//        return "\(Bundle.main.bundlePath)/file/audio"
-//    }
-//
-//    var cacehPath: String {
-//        return "\(NSHomeDirectory())/Documents/file/audio"
-//    }
     var path = "/audio"
     
     private override init() {}
@@ -36,7 +29,7 @@ class DownloadManager: NSObject {
 }
 
 extension DownloadManager {
-    func find(fileWith path: String, filename: String) -> URL? {
+    func find(fileWith path: String, filename: String) -> (url: URL, filename: String)? {
         guard FileManager.default.fileExists(atPath: path) else { return nil }
         
         do {
@@ -52,34 +45,72 @@ extension DownloadManager {
             guard findname.isEmpty == false else {
                 return nil
             }
-            return URL(fileURLWithPath: "\(path)\(findname)")
+            return (URL(fileURLWithPath: "\(path)/\(findname)"), filename)
         } catch {
             print("获取文件目录失败: \(error)")
         }
         return nil
     }
     
-    func exist(with path: String, word: String) -> URL? {
-        // 先找bundle
-        let bundlePath = "\(bundlePath)/audio\(path)"
+    
+    func download(with url: String, path: String, word:String, completion: ((_ error: String?, _ filePath: URL?,_ filename: String?) -> Void)?) {
 
-        if let url = find(fileWith: bundlePath, filename: word) {
-            return url
+        if let temp = find(fileWith: path, filename: word) {
+            completion?(nil, temp.url, temp.filename)
+            return
+        }
+
+        guard let url = url.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed) else {
+            completion?("url encoding失败", nil, nil)
+            return
         }
         
-        // 找cache
-        return find(fileWith: "\(cachePath)/audio\(path)", filename: word)
+        guard let taskUrl = URL(string: url) else {
+            completion?("url转失败", nil, nil)
+            return
+        }
+        
+        let request = URLRequest(url: taskUrl)
+        let session = URLSession(configuration: .default)
+        session.downloadTask(with: request) { tempUrl, response, error in
+            guard let tempUrl = tempUrl, error == nil else {
+                print("文件下载失败")
+                completion?("文件下载失败", nil, nil)
+                return
+            }
+
+            guard let servername = response?.suggestedFilename else { return }
+            let filename = "\(word)\(servername.extension)"
+            var destinationPath = URL(fileURLWithPath: path)
+
+            // 检查目录是否存在
+            do {
+                if !FileManager.default.fileExists(atPath: destinationPath.path) {
+                    try FileManager.default.createDirectory(at: destinationPath, withIntermediateDirectories: true, attributes: nil)
+                }
+            } catch let error {
+                print(error)
+                completion?("文件夹目录创建失败", nil, nil)
+            }
+            destinationPath = destinationPath.appendingPathComponent(filename)
+            do {
+                // 文件移动至document
+                try FileManager.default.copyItem(atPath: tempUrl.path, toPath: destinationPath.path)
+                // main
+                DispatchQueue.main.async {
+                    completion?(nil, destinationPath, filename)
+                }
+            } catch let error {
+                print(error)
+                completion?("文件移动失败", nil, nil)
+            }
+        }.resume()
     }
 
     
     func download(with path: String, word:String, type: String, completion: ((_ error: String?, _ filePath: URL?) -> Void)?) {
 
-        if let url = exist(with: path, word: word) {
-            completion?(nil, url)
-            return
-        }
-        
-        // 不存在，下载
+        print("使用有道下载。。。。。。。。。")
         // 0美  1英
         let url = "https://dict.youdao.com/dictvoice?type=\(type)&audio=\(word)"
 
@@ -98,10 +129,12 @@ extension DownloadManager {
 
             guard let servername = response?.suggestedFilename else { return }
             let filename = "\(word)\(servername.extension)"
-            var destinationPath = URL(fileURLWithPath: "\(cachePath)/audio\(path)")
+            var destinationPath = URL(fileURLWithPath: path)
 
             // 检查目录是否存在
             do {
+                
+                
                 if !FileManager.default.fileExists(atPath: destinationPath.path) {
                     try FileManager.default.createDirectory(at: destinationPath, withIntermediateDirectories: true, attributes: nil)
                 }
@@ -110,9 +143,12 @@ extension DownloadManager {
                 completion?("文件夹目录创建失败", nil)
             }
             destinationPath = destinationPath.appendingPathComponent(filename)
-            print("文件下载document下的可保存的url:\(destinationPath)")
+            
             do {
                 // 文件移动至document
+                if FileManager.default.fileExists(atPath: destinationPath.path) {
+                    try FileManager.default.removeItem(atPath: destinationPath.path)
+                }
                 try FileManager.default.copyItem(atPath: tempUrl.path, toPath: destinationPath.path)
                 // main
                 DispatchQueue.main.async {

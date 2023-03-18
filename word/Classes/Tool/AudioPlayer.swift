@@ -53,33 +53,22 @@ extension AudioPlayer {
     func prepareToPlay(with url: URL) -> Bool {
         self.url = url
         do {
-            try player = AVAudioPlayer(contentsOf: url)
+            let data = try Data(contentsOf: url)
+            try player = AVAudioPlayer(data: data, fileTypeHint: AVFileType.mp3.rawValue)
             player.delegate = self
             return player.prepareToPlay()
         } catch {
+            print(error)
             print("播放器创建失败")
         }
         
         return false
     }
     
-    func play(with url: URL) {
-        self.url = url
-        do {
-            if player != nil {
-                player.stop()
-            }
-            
-            try player = AVAudioPlayer(contentsOf: url)
-            player.delegate = self
-            play()
-        } catch {
-            print("播放器创建失败")
-        }
-    }
-    
     func play() {
         isPaused = false
+        
+        guard player != nil else { return }
 
         let flag = player.play()
         if flag {

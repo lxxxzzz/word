@@ -8,11 +8,13 @@
 import UIKit
 
 class Lesson: NSObject {
+    
+    var id: Int?
+    var number: Int?
+    var name: String?
+    var name_cn: String?
+    var book_id: Int?
     weak var book: Book?
-    var title: String?
     var words: [Word] = [Word]()
     
-    override var description: String {
-        return title ?? super.description
-    }
 }

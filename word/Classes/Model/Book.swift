@@ -8,7 +8,7 @@
 import UIKit
 
 class Book: NSObject {
-    var id: String?
+    var id: Int?
     var name: String?
     var lessons: [Lesson] = [Lesson]()
 }
