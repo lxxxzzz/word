@@ -15,6 +15,7 @@ class WordDictationViewController: UIViewController {
     let repeatCountKey = "__repeat_count_cache_key__"
     let repeatIntervalKey = "__repeat_interval_cache_key__"
     let deadlineKey = "__deadline_cache_key__"
+    let pronunciationKey = "__pronunciation_cache_key__"
     
     private var words = [Word]()
     
@@ -22,6 +23,7 @@ class WordDictationViewController: UIViewController {
     
     var playIndex = 0
     var deadline: Double = 2
+    var pronunciation: Int = 0
     var task: DispatchWorkItem?
 
     lazy var englishLabel: UILabel = {
@@ -38,14 +40,22 @@ class WordDictationViewController: UIViewController {
         label.textColor = UIColor(red: 155.0 / 255.0, green: 157.0 / 255.0, blue: 168.0 / 255.0, alpha: 1)
         return label
     }()
+    
+    lazy var chineseContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(red: 49.0 / 255.0, green: 51.0 / 255.0, blue: 72.0 / 255.0, alpha: 1)
+        view.layer.cornerRadius = 8
+        view.layer.masksToBounds = true
+        return view
+    }()
+    
     lazy var chineseLabel: UILabel = {
         var label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
         label.textColor = .white
         label.textAlignment = .left
-        label.backgroundColor = UIColor(red: 49.0 / 255.0, green: 51.0 / 255.0, blue: 72.0 / 255.0, alpha: 1)
-        label.layer.cornerRadius = 8
-        label.layer.masksToBounds = true
+        label.numberOfLines = 0
+        
         return label
     }()
     lazy var countLabel: UILabel = {
@@ -126,6 +136,7 @@ class WordDictationViewController: UIViewController {
             self.deadline = deadline
         }
 
+        pronunciation = UserDefaults.standard.integer(forKey: pronunciationKey)
     }
     
     func setupUI() {
@@ -134,7 +145,8 @@ class WordDictationViewController: UIViewController {
         view.backgroundColor = UIColor(red: 43.0 / 255.0, green: 44.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
 
         view.addSubview(englishLabel)
-        view.addSubview(chineseLabel)
+        view.addSubview(chineseContainerView)
+        chineseContainerView.addSubview(chineseLabel)
         view.addSubview(soundmarkLabel)
         view.addSubview(countLabel)
         view.addSubview(toolBar)
@@ -144,8 +156,7 @@ class WordDictationViewController: UIViewController {
         toolBar.addSubview(hiddenButton)
         toolBar.addSubview(wordListButton)
         englishLabel.snp.makeConstraints { make in
-            make.left.equalTo(view.snp.left).offset(20)
-            make.right.equalTo(view.snp.right).offset(-20)
+            make.left.right.equalTo(chineseLabel)
             make.top.equalTo(view.snp.top).offset(50)
             make.height.equalTo(45)
         }
@@ -154,10 +165,17 @@ class WordDictationViewController: UIViewController {
             make.top.equalTo(englishLabel.snp.bottom).offset(20)
             make.height.equalTo(20)
         }
-        chineseLabel.snp.makeConstraints { make in
-            make.left.right.equalTo(englishLabel)
+        chineseContainerView.snp.makeConstraints { make in
+            make.left.equalTo(view.snp.left).offset(20)
+            make.right.equalTo(view.snp.right).offset(-20)
             make.top.equalTo(soundmarkLabel.snp.bottom).offset(20)
-            make.height.equalTo(50)
+            make.height.greaterThanOrEqualTo(50)
+        }
+        chineseLabel.snp.makeConstraints { make in
+            make.left.equalTo(chineseContainerView.snp.left).offset(10)
+            make.right.equalTo(chineseContainerView.snp.right).offset(-10)
+            make.top.equalTo(chineseContainerView.snp.top).offset(5)
+            make.bottom.equalTo(chineseContainerView.snp.bottom).offset(-5)
         }
         countLabel.snp.makeConstraints { make in
             make.centerX.equalTo(view)
@@ -218,6 +236,7 @@ class WordDictationViewController: UIViewController {
         viewController.modalPresentationStyle = .overFullScreen
         viewController.modalTransitionStyle = .crossDissolve
         viewController.delegate = self
+        viewController.typeControl.selectedSegmentIndex = pronunciation
         viewController.deadlineStepper.value = deadline
         viewController.repeatCountStepper.value = Double(AudioPlayer.shared.repeatCount)
         viewController.repeatIntervalStepper.value = AudioPlayer.shared.repeatInterval
@@ -258,7 +277,7 @@ class WordDictationViewController: UIViewController {
 
     @objc func onList() {
         let viewController = WordListViewController()
-//        viewController.words = words
+        viewController.delegate = self
         viewController.lessons = lessons
         if playIndex >= 0 && words.count > 0 && playIndex < words.count {
             viewController.word = words[playIndex]
@@ -269,6 +288,7 @@ class WordDictationViewController: UIViewController {
         present(nav, animated: true, completion: nil)
     }
     
+    @discardableResult
     fileprivate func prepareToPlay(with index: Int) -> Bool {
         guard playIndex >= 0 else {
             return false
@@ -288,39 +308,68 @@ class WordDictationViewController: UIViewController {
         englishLabel.text = word.english
         chineseLabel.text = word.chinese
         
+//        let uk_path = "\(path)/audio/\(word.book!.name!)/Lesson \(word.lesson!.number!)/uk"
+//        let us_path = "\(path)/audio/\(word.book!.name!)/Lesson \(word.lesson!.number!)/us"
+//        
+//        if let us_name = DownloadManager.shared.find(fileWith: us_path, filename: word.english!)?.filename {
+//            let us_full_path = "\(word.book!.name!)/Lesson \(word.lesson!.number!)/us/\(us_name)"
+//            print(us_full_path)
+//            DB.shared.db.executeUpdate("UPDATE t_words set audio_path_us = ? where id = ?", withArgumentsIn: [us_full_path, word.id!])
+//        }
+//        
+//        if let uk_name = DownloadManager.shared.find(fileWith: uk_path, filename: word.english!)?.filename {
+//            
+//            let uk_full_path = "\(word.book!.name!)/Lesson \(word.lesson!.number!)/uk/\(uk_name)"
+//            print(uk_full_path)
+//            DB.shared.db.executeUpdate("UPDATE t_words set audio_path_uk = ? where id = ?", withArgumentsIn: [uk_full_path, word.id!])
+//        }
+//        
+//        playIndex += 1
+//        prepareToPlay(with: playIndex)
+//        
+//        return true
+        var soundmark: String?
+        var audio_path: String?
+        if pronunciation == 0 {
+            soundmark = word.soundmark_us
+            audio_path = word.audio_path_us
+        } else {
+            soundmark = word.soundmark_uk
+            audio_path = word.audio_path_uk
+        }
         
-        if let soundmark = word.soundmark_us {
+        if let soundmark = soundmark {
             soundmarkLabel.text = "[\(soundmark)]"
         }
         
-        guard let audio_path_us = word.audio_path_us else {
+        guard let audio_path = audio_path else {
             return false
         }
 
-        let url = URL(fileURLWithPath: "\(path)/audio/\(audio_path_us)")
-        
+        let url = URL(fileURLWithPath: "\(path)/audio/\(audio_path)")
+
         NotificationCenter.default.post(name: PrepareToPlayNotification, object: word)
         return AudioPlayer.shared.prepareToPlay(with: url)
+    }
+    
+    fileprivate func play(index: Int) {
+        if prepareToPlay(with: playIndex) {
+            AudioPlayer.shared.play()
+        } else {
+            print("准备失败")
+        }
     }
     
     fileprivate func playNext() {
         playIndex += 1
 
-        if prepareToPlay(with: playIndex) {
-            AudioPlayer.shared.play()
-        } else {
-            print("准备失败")
-        }
+        play(index: playIndex)
     }
     
     fileprivate func playPrevious() {
         playIndex -= 1
 
-        if prepareToPlay(with: playIndex) {
-            AudioPlayer.shared.play()
-        } else {
-            print("准备失败")
-        }
+        play(index: playIndex)
     }
 }
 
@@ -346,19 +395,32 @@ extension WordDictationViewController: AudioPlayerDelegate {
 }
 
 extension WordDictationViewController: DictationSettingsViewControllerDelegate {
-    func settings(value count: Int, interval: Double, deadline: Double) {
+    func settings(value count: Int, interval: Double, deadline: Double, pronunciation: Int) {
         AudioPlayer.shared.repeatCount = count
         AudioPlayer.shared.repeatInterval = interval
         self.deadline = deadline
+        self.pronunciation = pronunciation
+        
+        prepareToPlay(with: playIndex)
         
         UserDefaults.standard.set(deadline, forKey: deadlineKey)
         UserDefaults.standard.set(count, forKey: repeatCountKey)
         UserDefaults.standard.set(interval, forKey: repeatIntervalKey)
+        UserDefaults.standard.set(pronunciation, forKey: pronunciationKey)
         UserDefaults.standard.synchronize()
     }
 }
 
-
+extension WordDictationViewController: WordListViewControllerDelegate {
+    func select(word: Word) {
+        
+        if let index = words.firstIndex(of: word) {
+            playIndex = index
+            play(index: playIndex)
+        }
+        
+    }
+}
 
 /**
  let path = "/Users/xiaohongli/Desktop/mp3"

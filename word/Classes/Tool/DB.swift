@@ -10,7 +10,9 @@ import FMDB
 
 class DB: NSObject {
     public lazy var db: FMDatabase = {
+        
         let db = FMDatabase(path: "\(path)/data/data.sqlite")
+//        let db = FMDatabase(path: "/Users/xiaohongli/Desktop/data.sqlite")
         return db
     }()
     

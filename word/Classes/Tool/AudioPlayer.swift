@@ -90,6 +90,9 @@ extension AudioPlayer {
         task?.cancel()
         
         player.stop()
+        
+        url = nil
+        player = nil
     }
 }
 

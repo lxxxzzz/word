@@ -45,7 +45,7 @@ extension DownloadManager {
             guard findname.isEmpty == false else {
                 return nil
             }
-            return (URL(fileURLWithPath: "\(path)/\(findname)"), filename)
+            return (URL(fileURLWithPath: "\(path)/\(findname)"), findname)
         } catch {
             print("获取文件目录失败: \(error)")
         }

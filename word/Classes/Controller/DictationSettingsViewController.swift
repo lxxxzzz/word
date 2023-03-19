@@ -8,7 +8,7 @@
 import UIKit
 
 protocol DictationSettingsViewControllerDelegate: AnyObject {
-    func settings(value count: Int, interval: Double, deadline: Double)
+    func settings(value count: Int, interval: Double, deadline: Double, pronunciation: Int)
 }
 
 class DictationSettingsViewController: UIViewController {
@@ -68,6 +68,21 @@ class DictationSettingsViewController: UIViewController {
         return stepper
     }()
     
+    lazy var typeLabel: UILabel = {
+        var label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.textAlignment = .left
+        label.text = "发音类型"
+        return label
+    }()
+    
+    lazy var typeControl: UISegmentedControl = {
+        var typeControl = UISegmentedControl(items: ["美式", "英式"])
+        typeControl.addTarget(self, action: #selector(onTypeValueChanged(segementControl:)), for: .valueChanged)
+        
+        return typeControl
+    }()
+    
     public lazy var cancelButton: UIButton = {
         let button = UIButton()
         button.setTitle("取消", for: .normal)
@@ -114,6 +129,9 @@ class DictationSettingsViewController: UIViewController {
         
         containerView.addSubview(cancelButton)
         containerView.addSubview(confirmButton)
+        
+        containerView.addSubview(typeLabel)
+        containerView.addSubview(typeControl)
 
         let offset = 30
         
@@ -151,6 +169,16 @@ class DictationSettingsViewController: UIViewController {
         deadlineStepper.snp.makeConstraints { make in
             make.right.equalTo(repeatCountStepper.snp.right)
             make.centerY.equalTo(deadlineLabel.snp.centerY)
+        }
+        
+        typeLabel.snp.makeConstraints { make in
+            make.left.equalTo(deadlineLabel.snp.left)
+            make.top.equalTo(deadlineLabel.snp.bottom).offset(offset)
+        }
+        
+        typeControl.snp.makeConstraints { make in
+            make.right.equalTo(repeatCountStepper.snp.right)
+            make.centerY.equalTo(typeLabel.snp.centerY)
         }
         
         cancelButton.snp.makeConstraints { make in
@@ -221,7 +249,7 @@ class DictationSettingsViewController: UIViewController {
     }
     
     @objc func onConfirm() {
-        delegate?.settings(value: Int(repeatCountStepper.value), interval: repeatIntervalStepper.value, deadline: deadlineStepper.value)
+        delegate?.settings(value: Int(repeatCountStepper.value), interval: repeatIntervalStepper.value, deadline: deadlineStepper.value, pronunciation: typeControl.selectedSegmentIndex)
         
         onDismiss()
     }
@@ -236,6 +264,10 @@ class DictationSettingsViewController: UIViewController {
     
     @objc func onDeadlineValueChanged(stepper: UIStepper) {
         updateDeadline()
+    }
+    
+    @objc func onTypeValueChanged(segementControl: UISegmentedControl) {
+        print(segementControl.selectedSegmentIndex)
     }
 
 }

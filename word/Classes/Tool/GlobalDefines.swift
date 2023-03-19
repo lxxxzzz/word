@@ -7,6 +7,10 @@
 
 import Foundation
 
+//var path: String {
+//    return "\(Bundle.main.bundlePath)/file"
+//}
+
 var path: String {
     return "\(Bundle.main.bundlePath)/file"
 }

@@ -7,12 +7,17 @@
 
 import UIKit
 
+protocol WordListViewControllerDelegate: AnyObject {
+    func select(word: Word)
+}
+
 class WordListViewController: UIViewController {
     
     var words: [Word]?
     var word: Word?
     var isManualScroll: Bool = false
     var lessons: [Lesson]?
+    var delegate: WordListViewControllerDelegate?
     
     private lazy var tableView : UITableView = {
         let tableView = UITableView(frame: CGRect(x: 0, y: 0, width: 0, height: 0), style: .grouped)
@@ -24,6 +29,7 @@ class WordListViewController: UIViewController {
         tableView.rowHeight = 44
         tableView.keyboardDismissMode = .onDrag
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(WordListHeaderView.self, forHeaderFooterViewReuseIdentifier: "headerView")
         if #available(iOS 15.0, *) {
               tableView.sectionHeaderTopPadding = 0
         }
@@ -123,28 +129,16 @@ extension WordListViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        guard let lessons = lessons else { return "" }
-        
-        let lesson = lessons[section]
-        
-        return "Lesson \(lesson.number ?? 1)"
-    }
-    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "headerView") {
-            return headerView
-        } else {
-            let label = UILabel(frame: CGRect(x: 00, y: 0, width: 100, height: 20))
-            if let lessons = lessons {
-                let lesson = lessons[section]
-                
-                label.text = "    Lesson \(lesson.number ?? 1)"
-            }
-//            label.textColor = UIColor(red: 220.0 / 255.0, green: 168.0 / 255.0, blue: 78.0 / 255.0, alpha: 1)
-            label.textColor = .red
-            return label
+
+        let headerView: WordListHeaderView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "headerView") as! WordListHeaderView
+        if let lessons = lessons {
+            let lesson = lessons[section]
+            
+            headerView.titleLabel.text = "Lesson \(lesson.number ?? 1)"
         }
+        
+        return headerView
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -152,7 +146,12 @@ extension WordListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let lessons = lessons else { return }
         
+        let lesson = lessons[indexPath.section]
+        let word = lesson.words[indexPath.row]
+        
+        delegate?.select(word: word)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
