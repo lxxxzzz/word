@@ -133,8 +133,6 @@ extension DownloadManager {
 
             // 检查目录是否存在
             do {
-                
-                
                 if !FileManager.default.fileExists(atPath: destinationPath.path) {
                     try FileManager.default.createDirectory(at: destinationPath, withIntermediateDirectories: true, attributes: nil)
                 }

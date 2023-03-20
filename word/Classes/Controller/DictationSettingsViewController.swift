@@ -272,8 +272,4 @@ class DictationSettingsViewController: UIViewController {
 
 }
 
-extension UIColor {
-    static func buttonColor() -> UIColor {
-        return #colorLiteral(red: 0.1921568627, green: 0.6470588235, blue: 0.5176470588, alpha: 1)
-    }
-}
+

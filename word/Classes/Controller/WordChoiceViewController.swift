@@ -16,15 +16,41 @@ class WordChoiceViewController: UIViewController {
     var endLesson: Lesson?
     var lessons = [Lesson]()
     
+    lazy var containerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(red: 49.0 / 255.0, green: 51.0 / 255.0, blue: 72.0 / 255.0, alpha: 1)
+        return view
+    }()
+    
+    public lazy var countLabel: UILabel = {
+        var label = UILabel()
+        label.textColor = .white
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.text = "已选0个"
+        return label
+    }()
+    
     public lazy var dictationButton: UIButton = {
         let button = UIButton()
-        button.setTitle("开始听写(已选：0个)", for: .normal)
+        button.setTitle("听写", for: .normal)
         button.layer.cornerRadius = 24
         button.layer.masksToBounds = true
         button.backgroundColor = .buttonColor()
         button.titleLabel?.font = UIFont.light(18)
         button.setTitleColor(.white, for: .normal)
         button.addTarget(self, action: #selector(onDictation), for: .touchUpInside)
+        return button
+    }()
+    
+    public lazy var studyButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("学习", for: .normal)
+        button.layer.cornerRadius = 24
+        button.layer.masksToBounds = true
+        button.backgroundColor = .buttonColor()
+        button.titleLabel?.font = UIFont.light(18)
+        button.setTitleColor(.white, for: .normal)
+        button.addTarget(self, action: #selector(onStudy), for: .touchUpInside)
         return button
     }()
     
@@ -35,7 +61,7 @@ class WordChoiceViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.rowHeight = 64
+        tableView.rowHeight = 70
         tableView.keyboardDismissMode = .onDrag
         tableView.contentInsetAdjustmentBehavior = .never
         tableView.register(WordChoiceCell.self, forCellReuseIdentifier: "cell")
@@ -60,22 +86,38 @@ class WordChoiceViewController: UIViewController {
     }
     
     func setupUI() {
-        title = "选择要听写的单词"
+        title = book.name
 
         view.backgroundColor = UIColor(red: 43.0 / 255.0, green: 44.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
+        view.addSubview(containerView)
+        containerView.addSubview(countLabel)
+        containerView.addSubview(dictationButton)
+        containerView.addSubview(studyButton)
         view.addSubview(tableView)
-        view.addSubview(dictationButton)
+        containerView.snp.makeConstraints { make in
+            make.left.right.bottom.equalTo(view)
+            make.height.equalTo(80)
+        }
         tableView.snp.makeConstraints { (make) in
             make.top.equalTo(view.snp.top)
             make.left.equalTo(view.snp.left)
             make.right.equalTo(view.snp.right)
-            make.bottom.equalTo(dictationButton.snp.top).offset(-10)
+            make.bottom.equalTo(containerView.snp.top).offset(-10)
+        }
+        countLabel.snp.makeConstraints { make in
+            make.left.equalTo(containerView.snp.left).offset(20)
+            make.centerY.equalTo(dictationButton.snp.centerY)
+            make.width.equalTo(95)
         }
         dictationButton.snp.makeConstraints { make in
             make.height.equalTo(dictationButton.layer.cornerRadius * 2)
-            make.bottom.equalTo(view.snp.bottom).offset(-40)
-            make.left.equalTo(view.snp.left).offset(30)
-            make.right.equalTo(view.snp.right).offset(-30)
+            make.left.equalTo(countLabel.snp.right).offset(5)
+            make.top.equalTo(containerView.snp.top)
+            make.right.equalTo(studyButton.snp.left).offset(-10)
+        }
+        studyButton.snp.makeConstraints { make in
+            make.top.bottom.width.equalTo(dictationButton)
+            make.right.equalTo(containerView.snp.right).offset(-20)
         }
     }
 
@@ -103,6 +145,28 @@ class WordChoiceViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
+    @objc func onStudy() {
+        guard let start = startLesson else {
+            print("请选择开始部分")
+            return
+        }
+        guard let end = endLesson else {
+            print("请选择结束部分")
+            return
+        }
+        
+        let viewController = WordStudyViewController()
+        viewController.title = "Lesson \(start.number ?? 0)~Lesson\(end.number ?? 0)"
+        viewController.lessons = lessons
+        navigationController?.pushViewController(viewController, animated: true)
+        
+        startLesson = nil
+        endLesson = nil
+        countLabel.text = "已选:0个"
+        lessons.removeAll()
+        tableView.reloadData()
+    }
+    
     @objc func onDictation() {
         guard let start = startLesson else {
             print("请选择开始部分")
@@ -120,7 +184,7 @@ class WordChoiceViewController: UIViewController {
         
         startLesson = nil
         endLesson = nil
-        dictationButton.setTitle("开始听写(已选：0个)", for: .normal)
+        countLabel.text = "已选:0个"
         lessons.removeAll()
         tableView.reloadData()
     }
@@ -160,8 +224,8 @@ extension WordChoiceViewController: UITableViewDelegate, UITableViewDataSource {
             cell.choice = true
         }
 
-        cell.textLabel?.text = "Lesson \(lesson.number ?? 0) \(lesson.name ?? "") \(lesson.name_cn ?? "")"
-        cell.textLabel?.textColor = .white
+        cell.contentLabel.text = "Lesson \(lesson.number ?? 0) \(lesson.name ?? "")"
+        cell.chineseLabel.text = lesson.name_cn
         cell.backgroundColor = UIColor(red: 43.0 / 255.0, green: 44.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
         return cell
     }
@@ -182,7 +246,7 @@ extension WordChoiceViewController: UITableViewDelegate, UITableViewDataSource {
             
             lessons.removeAll()
             
-            dictationButton.setTitle("开始听写(已选：0个)", for: .normal)
+            countLabel.text = "已选:0个"
         } else {
             endLesson = lesson
 
@@ -199,8 +263,7 @@ extension WordChoiceViewController: UITableViewDelegate, UITableViewDataSource {
                     words.append(word)
                 }
             }
-            
-            dictationButton.setTitle("开始听写(已选：\(words.count)个)", for: .normal)
+            countLabel.text = "已选:\(words.count)个"
         }
         
         tableView.reloadData()

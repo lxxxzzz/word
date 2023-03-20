@@ -39,7 +39,6 @@ class WordChoiceCell: UITableViewCell {
             switch type {
             case .start:
                 markLabel.isHidden = false
-//                markLabel.text = "S"
                 lineView.snp.remakeConstraints { make in
                     make.top.equalTo(markLabel.snp.bottom)
                     make.bottom.equalTo(contentView.snp.bottom)
@@ -48,7 +47,6 @@ class WordChoiceCell: UITableViewCell {
                 }
             case .end:
                 markLabel.isHidden = false
-//                markLabel.text = "E"
                 lineView.snp.remakeConstraints { make in
                     make.top.equalTo(contentView.snp.top)
                     make.bottom.equalTo(markLabel.snp.bottom)
@@ -77,7 +75,17 @@ class WordChoiceCell: UITableViewCell {
 
     public lazy var contentLabel: UILabel = {
         var label = UILabel()
-        
+        label.textColor = .white
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    public lazy var chineseLabel: UILabel = {
+        var label = UILabel()
+        label.textColor = .white
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.numberOfLines = 0
         return label
     }()
     
@@ -103,13 +111,20 @@ class WordChoiceCell: UITableViewCell {
         backgroundColor = UIColor.clear
         selectionStyle = .none
         contentView.addSubview(contentLabel)
+        contentView.addSubview(chineseLabel)
         contentView.addSubview(lineView)
         contentView.addSubview(markLabel)
         
         contentLabel.snp.makeConstraints { make in
             make.left.equalTo(contentView.snp.left).offset(20)
-            make.centerY.equalTo(contentView.snp.centerY)
-            make.width.equalTo(200)
+            make.bottom.equalTo(contentView.snp.centerY)
+            make.right.equalTo(contentView.snp.right).offset(-20)
+        }
+        
+        chineseLabel.snp.makeConstraints { make in
+            make.left.equalTo(contentLabel.snp.left)
+            make.top.equalTo(contentLabel.snp.bottom)
+            make.right.equalTo(contentLabel.snp.right)
         }
         
         lineView.snp.makeConstraints { make in

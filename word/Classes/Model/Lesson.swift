@@ -8,7 +8,6 @@
 import UIKit
 
 class Lesson: NSObject {
-    
     var id: Int?
     var number: Int?
     var name: String?
@@ -17,4 +16,8 @@ class Lesson: NSObject {
     weak var book: Book?
     var words: [Word] = [Word]()
     
+    static func == (lhs: Lesson, rhs: Lesson) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
+

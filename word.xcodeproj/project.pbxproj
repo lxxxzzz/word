@@ -21,6 +21,11 @@
 		04B382F729BF1F7A002AC28D /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382F629BF1F7A002AC28D /* Book.swift */; };
 		04B38AEF29C00EBD002AC28D /* file in Resources */ = {isa = PBXBuildFile; fileRef = 04B38AEE29C00EBD002AC28D /* file */; };
 		04B38AF329C020A1002AC28D /* GlobalDefines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B38AF229C020A1002AC28D /* GlobalDefines.swift */; };
+		04CAD37129C7FE5100F675FD /* WordStudyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CAD37029C7FE5100F675FD /* WordStudyViewController.swift */; };
+		04CAD37329C7FF9600F675FD /* WordStudyCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CAD37229C7FF9600F675FD /* WordStudyCell.swift */; };
+		04CAD37529C801D500F675FD /* ColorHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CAD37429C801D500F675FD /* ColorHelper.swift */; };
+		04CAD37729C82B5000F675FD /* APP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CAD37629C82B5000F675FD /* APP.swift */; };
+		04CAD37929C853E000F675FD /* ErrorWordsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04CAD37829C853E000F675FD /* ErrorWordsViewController.swift */; };
 		04DA251929C2ACFE008E1CFD /* WordChoiceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DA251829C2ACFE008E1CFD /* WordChoiceViewController.swift */; };
 		04DA251B29C2B941008E1CFD /* WordListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DA251A29C2B941008E1CFD /* WordListViewController.swift */; };
 		04DA251D29C304AF008E1CFD /* WordChoiceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DA251C29C304AF008E1CFD /* WordChoiceCell.swift */; };
@@ -49,6 +54,11 @@
 		04B382F629BF1F7A002AC28D /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
 		04B38AEE29C00EBD002AC28D /* file */ = {isa = PBXFileReference; lastKnownFileType = folder; path = file; sourceTree = "<group>"; };
 		04B38AF229C020A1002AC28D /* GlobalDefines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDefines.swift; sourceTree = "<group>"; };
+		04CAD37029C7FE5100F675FD /* WordStudyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordStudyViewController.swift; sourceTree = "<group>"; };
+		04CAD37229C7FF9600F675FD /* WordStudyCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordStudyCell.swift; sourceTree = "<group>"; };
+		04CAD37429C801D500F675FD /* ColorHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorHelper.swift; sourceTree = "<group>"; };
+		04CAD37629C82B5000F675FD /* APP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APP.swift; sourceTree = "<group>"; };
+		04CAD37829C853E000F675FD /* ErrorWordsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorWordsViewController.swift; sourceTree = "<group>"; };
 		04DA251829C2ACFE008E1CFD /* WordChoiceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordChoiceViewController.swift; sourceTree = "<group>"; };
 		04DA251A29C2B941008E1CFD /* WordListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordListViewController.swift; sourceTree = "<group>"; };
 		04DA251C29C304AF008E1CFD /* WordChoiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordChoiceCell.swift; sourceTree = "<group>"; };
@@ -122,8 +132,10 @@
 			isa = PBXGroup;
 			children = (
 				0412E16129C5AA930038CE4E /* BookListViewController.swift */,
+				04CAD37829C853E000F675FD /* ErrorWordsViewController.swift */,
 				04DA251829C2ACFE008E1CFD /* WordChoiceViewController.swift */,
 				04E501C629C159E700265461 /* WordDictationViewController.swift */,
+				04CAD37029C7FE5100F675FD /* WordStudyViewController.swift */,
 				04DA251A29C2B941008E1CFD /* WordListViewController.swift */,
 				04E501CB29C192AB00265461 /* DictationSettingsViewController.swift */,
 				04E501C429C1581D00265461 /* DictationResultViewController.swift */,
@@ -149,6 +161,7 @@
 				04B382E929BEFAF8002AC28D /* AudioPlayer.swift */,
 				04B38AF229C020A1002AC28D /* GlobalDefines.swift */,
 				0412E15F29C570F70038CE4E /* DB.swift */,
+				04CAD37629C82B5000F675FD /* APP.swift */,
 			);
 			path = Tool;
 			sourceTree = "<group>";
@@ -158,6 +171,7 @@
 			children = (
 				04DA251C29C304AF008E1CFD /* WordChoiceCell.swift */,
 				0400C28129C6AE0000324439 /* WordListHeaderView.swift */,
+				04CAD37229C7FF9600F675FD /* WordStudyCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -166,6 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				04E501CE29C1A92400265461 /* FontHelper.swift */,
+				04CAD37429C801D500F675FD /* ColorHelper.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -305,6 +320,7 @@
 			files = (
 				04E501CA29C15DC700265461 /* BaseNavigationController.swift in Sources */,
 				04E501C529C1581D00265461 /* DictationResultViewController.swift in Sources */,
+				04CAD37929C853E000F675FD /* ErrorWordsViewController.swift in Sources */,
 				041AFBD729BDC67F003CEEC8 /* AppDelegate.swift in Sources */,
 				04B38AF329C020A1002AC28D /* GlobalDefines.swift in Sources */,
 				04E501CF29C1A92400265461 /* FontHelper.swift in Sources */,
@@ -317,10 +333,14 @@
 				04B382F729BF1F7A002AC28D /* Book.swift in Sources */,
 				04B382E829BEF2F0002AC28D /* DownloadManager.swift in Sources */,
 				04E501CC29C192AB00265461 /* DictationSettingsViewController.swift in Sources */,
+				04CAD37129C7FE5100F675FD /* WordStudyViewController.swift in Sources */,
 				04DA251B29C2B941008E1CFD /* WordListViewController.swift in Sources */,
 				04DA251929C2ACFE008E1CFD /* WordChoiceViewController.swift in Sources */,
 				0412E16029C570F70038CE4E /* DB.swift in Sources */,
 				0400C28229C6AE0000324439 /* WordListHeaderView.swift in Sources */,
+				04CAD37729C82B5000F675FD /* APP.swift in Sources */,
+				04CAD37529C801D500F675FD /* ColorHelper.swift in Sources */,
+				04CAD37329C7FF9600F675FD /* WordStudyCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

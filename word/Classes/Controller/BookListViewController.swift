@@ -42,12 +42,18 @@ class BookListViewController: UIViewController {
         }
         
         title = "书架"
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "错词本", style: .done, target: self, action: #selector(onErrorWords))
         
         data = DB.shared.allBooks()
     }
 
     deinit {
         print("BookListViewController dealloc")
+    }
+    
+    @objc func onErrorWords() {
+        let viewController = ErrorWordsViewController()
+        navigationController?.pushViewController(viewController, animated: true)
     }
 
 }

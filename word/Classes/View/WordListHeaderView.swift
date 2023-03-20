@@ -13,13 +13,14 @@ class WordListHeaderView: UITableViewHeaderFooterView {
         var label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 14)
         label.textAlignment = .center
-        label.textColor = .red
+        label.textColor = UIColor(r: 56, g: 83, b: 120)
         return label
     }()
     
     lazy var containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .gray
+        view.backgroundColor = .lightenBgColor()
+        view.backgroundColor = UIColor(r: 31, g: 39, b: 49)
         view.layer.cornerRadius = 8
         view.layer.masksToBounds = true
         return view

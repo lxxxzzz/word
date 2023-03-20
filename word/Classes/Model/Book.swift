@@ -11,4 +11,8 @@ class Book: NSObject {
     var id: Int?
     var name: String?
     var lessons: [Lesson] = [Lesson]()
+    
+    static func == (lhs: Book, rhs: Book) -> Bool {
+        return lhs.id == rhs.id
+    }
 }

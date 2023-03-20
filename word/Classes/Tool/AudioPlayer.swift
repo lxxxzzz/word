@@ -13,15 +13,10 @@ protocol AudioPlayerDelegate: AnyObject {
 }
 
 class AudioPlayer: NSObject {
-    
-    var repeatCount: Int = 2
-    var repeatInterval: Double = 2
     weak var delegate: AudioPlayerDelegate?
     
-    private var playCount: Int = 0
     var url: URL!
     var player: AVAudioPlayer!
-    var task: DispatchWorkItem?
     var isPaused: Bool = false
     
     static let shared = AudioPlayer()
@@ -50,9 +45,15 @@ class AudioPlayer: NSObject {
 }
 
 extension AudioPlayer {
+    @discardableResult
     func prepareToPlay(with url: URL) -> Bool {
         self.url = url
         do {
+            if player != nil {
+                player.stop()
+                player = nil
+            }
+            
             let data = try Data(contentsOf: url)
             try player = AVAudioPlayer(data: data, fileTypeHint: AVFileType.mp3.rawValue)
             player.delegate = self
@@ -79,16 +80,12 @@ extension AudioPlayer {
     }
 
     func pause() {
-        task?.cancel()
-        
         isPaused = true
         
         player.pause()
     }
     
     func stop() {
-        task?.cancel()
-        
         player.stop()
         
         url = nil
@@ -100,21 +97,6 @@ extension AudioPlayer: AVAudioPlayerDelegate {
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         guard flag else { return }
         
-        playCount += 1
-
-        guard playCount < repeatCount else {
-            print("播放完成")
-            delegate?.playEnd(player: self, url: url)
-            playCount = 0
-            return
-        }
-
-        task = DispatchWorkItem { [weak self] in
-            guard self?.isPaused == false else { return }
-            
-            player.play()
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + repeatInterval, execute: task!)
+        delegate?.playEnd(player: self, url: url)
     }
 }
