@@ -17,6 +17,7 @@
 		041AFBEF29BDD0F9003CEEC8 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041AFBEE29BDD0F9003CEEC8 /* Word.swift */; };
 		041AFBF129BDDC61003CEEC8 /* Lesson.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041AFBF029BDDC61003CEEC8 /* Lesson.swift */; };
 		0498C7F029C98AC200417ADB /* WordDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0498C7EF29C98AC200417ADB /* WordDetailViewController.swift */; };
+		0498C7F229C9A4CF00417ADB /* DictationResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0498C7F129C9A4CF00417ADB /* DictationResultCell.swift */; };
 		04B382E829BEF2F0002AC28D /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E729BEF2F0002AC28D /* DownloadManager.swift */; };
 		04B382EA29BEFAF8002AC28D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382E929BEFAF8002AC28D /* AudioPlayer.swift */; };
 		04B382F729BF1F7A002AC28D /* Book.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B382F629BF1F7A002AC28D /* Book.swift */; };
@@ -51,6 +52,7 @@
 		041AFBEE29BDD0F9003CEEC8 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
 		041AFBF029BDDC61003CEEC8 /* Lesson.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lesson.swift; sourceTree = "<group>"; };
 		0498C7EF29C98AC200417ADB /* WordDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDetailViewController.swift; sourceTree = "<group>"; };
+		0498C7F129C9A4CF00417ADB /* DictationResultCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationResultCell.swift; sourceTree = "<group>"; };
 		04B382E729BEF2F0002AC28D /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		04B382E929BEFAF8002AC28D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		04B382F629BF1F7A002AC28D /* Book.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Book.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				04DA251C29C304AF008E1CFD /* WordChoiceCell.swift */,
 				0400C28129C6AE0000324439 /* WordListHeaderView.swift */,
 				04CAD37229C7FF9600F675FD /* WordStudyCell.swift */,
+				0498C7F129C9A4CF00417ADB /* DictationResultCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -335,6 +338,7 @@
 				0412E16229C5AA940038CE4E /* BookListViewController.swift in Sources */,
 				04B382F729BF1F7A002AC28D /* Book.swift in Sources */,
 				04B382E829BEF2F0002AC28D /* DownloadManager.swift in Sources */,
+				0498C7F229C9A4CF00417ADB /* DictationResultCell.swift in Sources */,
 				04E501CC29C192AB00265461 /* DictationSettingsViewController.swift in Sources */,
 				04CAD37129C7FE5100F675FD /* WordStudyViewController.swift in Sources */,
 				04DA251B29C2B941008E1CFD /* WordListViewController.swift in Sources */,

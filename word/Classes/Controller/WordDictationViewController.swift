@@ -75,6 +75,14 @@ class WordDictationViewController: UIViewController {
         return button
     }()
     
+    lazy var stopButton: UIButton = {
+        var button = UIButton()
+        button.setImage(UIImage(named: "stop"), for: .normal)
+//        button.setImage(UIImage(named: "pause"), for: .selected)
+        button.addTarget(self, action: #selector(onStop), for: .touchUpInside)
+        return button
+    }()
+    
     lazy var nextButton: UIButton = {
         var button = UIButton()
         button.setImage(UIImage(named: "next"), for: .normal)
@@ -127,6 +135,9 @@ class WordDictationViewController: UIViewController {
         } else {
             print("准备失败")
         }
+        
+        // 默认是隐藏的
+        onHidden(sender: hiddenButton)
     }
     
     func setupUI() {
@@ -141,6 +152,7 @@ class WordDictationViewController: UIViewController {
         view.addSubview(countLabel)
         view.addSubview(toolBar)
         toolBar.addSubview(playButton)
+        toolBar.addSubview(stopButton)
         toolBar.addSubview(previousButton)
         toolBar.addSubview(nextButton)
         toolBar.addSubview(hiddenButton)
@@ -177,20 +189,25 @@ class WordDictationViewController: UIViewController {
             make.height.equalTo(120)
         }
         playButton.snp.makeConstraints { make in
-            make.centerX.equalTo(toolBar.snp.centerX)
+            make.right.equalTo(toolBar.snp.centerX).offset(-5)
             make.top.equalTo(toolBar.snp.top).offset(10)
             make.width.equalTo(60)
             make.height.equalTo(60)
         }
+        stopButton.snp.makeConstraints { make in
+            make.left.equalTo(toolBar.snp.centerX).offset(5)
+            make.top.equalTo(toolBar.snp.top).offset(10)
+            make.width.height.equalTo(playButton)
+        }
         nextButton.snp.makeConstraints { make in
             make.centerY.equalTo(playButton.snp.centerY)
-            make.left.equalTo(playButton.snp.right).offset(20)
+            make.left.equalTo(stopButton.snp.right).offset(10)
             make.width.equalTo(40)
             make.height.equalTo(40)
         }
         previousButton.snp.makeConstraints { make in
             make.centerY.equalTo(playButton.snp.centerY)
-            make.right.equalTo(playButton.snp.left).offset(-20)
+            make.right.equalTo(playButton.snp.left).offset(-10)
             make.width.equalTo(40)
             make.height.equalTo(40)
         }
@@ -234,6 +251,17 @@ class WordDictationViewController: UIViewController {
             // 暂停
             AudioPlayer.shared.pause()
         }
+    }
+    
+    @objc func onStop() {
+        guard playButton.isSelected else { return }
+        
+        AudioPlayer.shared.stop()
+        
+        let resultViewController = DictationResultViewController()
+        resultViewController.words = words
+        resultViewController.endIndex = playIndex
+        navigationController?.pushViewController(resultViewController, animated: true)
     }
     
     @objc func onNext() {
@@ -357,7 +385,7 @@ extension WordDictationViewController: AudioPlayerDelegate {
             if playIndex == words.count - 1 {
                 print("已经全部听写完毕")
                 let resultViewController = DictationResultViewController()
-                resultViewController.data = words
+                resultViewController.words = words
                 navigationController?.pushViewController(resultViewController, animated: true)
                 return
             }

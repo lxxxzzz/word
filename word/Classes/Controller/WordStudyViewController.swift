@@ -12,6 +12,7 @@ class WordStudyViewController: UIViewController {
     var words: [Word]?
     var lessons: [Lesson]?
     var errorWords = DB.shared.allErrorWords()
+    var allErrorInfoWords = DB.shared.allErrorInfoWords()
     
     public lazy var dictationButton: UIButton = {
         let button = UIButton()
@@ -124,13 +125,22 @@ extension WordStudyViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.usSoundmarkLabel.text = ""
             }
             
-            if errorWords.contains(word.id!) {
+            if let count = allErrorInfoWords[word.id!] {
                 cell.errorFlagLabel.isHidden = false
                 cell.operationButton.isSelected = true
+                cell.errorFlagLabel.text = "写错\(count)次"
             } else {
                 cell.errorFlagLabel.isHidden = true
                 cell.operationButton.isSelected = false
             }
+            
+//            if errorWords.contains(word.id!) {
+//                cell.errorFlagLabel.isHidden = false
+//                cell.operationButton.isSelected = true
+//            } else {
+//                cell.errorFlagLabel.isHidden = true
+//                cell.operationButton.isSelected = false
+//            }
             
             cell.wordLabel.text = word.english
             cell.chineseLabel.text = word.chinese

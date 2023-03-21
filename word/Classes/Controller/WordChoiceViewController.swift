@@ -207,10 +207,7 @@ extension WordChoiceViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell: WordChoiceCell = tableView.dequeueReusableCell(withIdentifier: "cell") as! WordChoiceCell
-        
-        
         let lesson = book.lessons[indexPath.row]
-        
         let index = getChoiceIndex()
         
         if index.endIndex == indexPath.row {

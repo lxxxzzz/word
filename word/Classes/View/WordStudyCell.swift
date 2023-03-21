@@ -96,12 +96,10 @@ class WordStudyCell: UITableViewCell {
         let button = UIButton()
         button.setTitle("加入易错", for: .normal)
         button.setTitle("移除易错", for: .selected)
-//        button.layer.cornerRadius = 8
-//        button.layer.masksToBounds = true
         button.backgroundColor = .gray
         button.titleLabel?.font = UIFont.light(10)
         button.setTitleColor(.white, for: .normal)
-        button.addTarget(self, action: #selector(onOperation(sender:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(onOperation), for: .touchUpInside)
         return button
     }()
     
@@ -175,7 +173,7 @@ class WordStudyCell: UITableViewCell {
         errorFlagLabel.snp.makeConstraints { make in
             make.top.equalTo(containerView.snp.top)
             make.right.equalTo(containerView.snp.right).offset(-10)
-            make.width.equalTo(20)
+            make.width.equalTo(50)
             make.height.equalTo(15)
         }
         
@@ -205,7 +203,7 @@ class WordStudyCell: UITableViewCell {
         delegate?.playUSAudio(cell: self)
     }
     
-    @objc func onOperation(sender: UIButton) {
+    @objc func onOperation() {
         delegate?.operation(cell: self)
     }
 }

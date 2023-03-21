@@ -12,6 +12,7 @@ class ErrorWordsViewController: UIViewController {
     var words: [Word]?
     var lessons: [Lesson]?
     var errorWords = DB.shared.allErrorWords()
+    var allErrorInfoWords = DB.shared.allErrorInfoWords()
     
     public lazy var dictationButton: UIButton = {
         let button = UIButton()
@@ -32,7 +33,7 @@ class ErrorWordsViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.rowHeight = 90
+        tableView.rowHeight = 100
         tableView.keyboardDismissMode = .onDrag
         tableView.register(WordStudyCell.self, forCellReuseIdentifier: "cell")
         tableView.register(WordListHeaderView.self, forHeaderFooterViewReuseIdentifier: "headerView")
@@ -112,13 +113,22 @@ extension ErrorWordsViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.usSoundmarkLabel.text = ""
             }
             
-            if errorWords.contains(word.id!) {
+            if let count = allErrorInfoWords[word.id!] {
                 cell.errorFlagLabel.isHidden = false
                 cell.operationButton.isSelected = true
+                cell.errorFlagLabel.text = "写错\(count)次"
             } else {
                 cell.errorFlagLabel.isHidden = true
                 cell.operationButton.isSelected = false
             }
+            
+//            if errorWords.contains(word.id!) {
+//                cell.errorFlagLabel.isHidden = false
+//                cell.operationButton.isSelected = true
+//            } else {
+//                cell.errorFlagLabel.isHidden = true
+//                cell.operationButton.isSelected = false
+//            }
             
             cell.wordLabel.text = word.english
             cell.chineseLabel.text = word.chinese

@@ -80,6 +80,8 @@ extension AudioPlayer {
     }
 
     func pause() {
+        guard player != nil else { return }
+        guard player.isPlaying else { return }
         isPaused = true
         
         player.pause()

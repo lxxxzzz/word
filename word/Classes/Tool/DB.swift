@@ -65,9 +65,15 @@ extension DB {
     }
     
     func insert(error wordId: Int) {
-        var sql = "SELECT * FROM t_error_words WHERE word_id = ?"
+        var sql = "SELECT count FROM t_error_words WHERE word_id = ?"
         if let result = businessDB.executeQuery(sql, withArgumentsIn: [wordId]), result.next() {
-
+            let count = result.int(forColumn: "count")
+            sql = "UPDATE t_error_words SET count = ? WHERE word_id = ?;"
+            if businessDB.executeUpdate(sql, withArgumentsIn: [count + 1, wordId]) {
+                print("更新成功")
+            } else {
+                print("更新失败")
+            }
         } else {
             sql = "INSERT INTO t_error_words(word_id, count) VALUES(?, 1);"
             if businessDB.executeUpdate(sql, withArgumentsIn: [wordId]) {
@@ -97,6 +103,20 @@ extension DB {
         while result.next() {
             let word_id = Int(result.int(forColumn: "word_id"))
             words.append(word_id)
+        }
+        return words
+    }
+    
+    func allErrorInfoWords() -> [Int : Int] {
+        var words = [Int : Int]()
+        let sql = "SELECT * FROM t_error_words"
+        guard let result = businessDB.executeQuery(sql, withArgumentsIn: []) else {
+            return words
+        }
+        while result.next() {
+            let word_id = Int(result.int(forColumn: "word_id"))
+            let count = Int(result.int(forColumn: "count"))
+            words[word_id] = count
         }
         return words
     }
