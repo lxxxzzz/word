@@ -13,7 +13,6 @@ class Lesson: NSObject {
     var name: String?
     var name_cn: String?
     var book_id: Int?
-    weak var book: Book?
     var words: [Word] = [Word]()
     
     static func == (lhs: Lesson, rhs: Lesson) -> Bool {

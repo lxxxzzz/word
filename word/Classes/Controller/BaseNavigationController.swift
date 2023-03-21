@@ -17,8 +17,15 @@ class BaseNavigationController: UINavigationController {
         appearance.shadowImage = UIImage()
         // 设置背景颜色
         appearance.backgroundColor = UIColor(red: 43.0 / 255.0, green: 44.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.titleTextAttributes = [.foregroundColor : UIColor.white, .font: UIFont.medium(16)]
         appearance.shadowColor = .clear
+        
+        
+        let itemAppearance = UIBarButtonItemAppearance(style: .done)
+        itemAppearance.normal.titleTextAttributes = [NSAttributedString.Key.font: UIFont.medium(14)]
+        appearance.buttonAppearance = itemAppearance
+        appearance.doneButtonAppearance = itemAppearance
+        
         // 设置按钮颜色
         UINavigationBar.appearance().tintColor = .white
         UINavigationBar.appearance().isTranslucent = false
@@ -27,7 +34,6 @@ class BaseNavigationController: UINavigationController {
         UINavigationBar.appearance().scrollEdgeAppearance = appearance
         UINavigationBar.appearance().standardAppearance = appearance
         UINavigationBar.appearance().compactAppearance = appearance
-        
     }
     
     required init?(coder aDecoder: NSCoder) {

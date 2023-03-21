@@ -8,7 +8,7 @@
 import Foundation
 
 var cachePath: String {
-    return "\(NSHomeDirectory())/Document/data"
+    return "\(NSHomeDirectory())/Documents/data"
 }
 
 var bundlePath: String {

@@ -39,6 +39,7 @@ class ErrorWordsViewController: UIViewController {
         if #available(iOS 15.0, *) {
               tableView.sectionHeaderTopPadding = 0
         }
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
         return tableView
     }()
     
@@ -54,7 +55,7 @@ class ErrorWordsViewController: UIViewController {
             make.top.equalTo(view.snp.top)
             make.left.equalTo(view.snp.left)
             make.right.equalTo(view.snp.right)
-            make.bottom.equalTo(dictationButton.snp.top)
+            make.bottom.equalTo(view.snp.bottom)
         }
         dictationButton.snp.makeConstraints { make in
             make.left.equalTo(view.snp.left).offset(20)
@@ -66,19 +67,11 @@ class ErrorWordsViewController: UIViewController {
         let errorWords = DB.shared.allErrorWords()
         
         words = DB.shared.get(wordsBy: errorWords)
-        
-//        let lessonsDict = [Lesson: [Word]]()
-//
-//        let array = words.uniqued { w in
-//            return w.lesson_id
-//        }
-        
- 
-        
+        title = "错词本"
     }
 
     deinit {
-        print("WordListViewController dealloc")
+        print("ErrorWordsViewController dealloc")
     }
     
     @objc func onBack() {
@@ -86,25 +79,17 @@ class ErrorWordsViewController: UIViewController {
     }
     
     @objc func onDictation() {
-        guard let start = lessons?.first else {
-            print("请选择开始部分")
-            return
-        }
-        guard let end = lessons?.last else {
-            print("请选择结束部分")
-            return
-        }
+        guard let words = words else { return }
         
         let viewController = WordDictationViewController()
-        viewController.title = "Lesson \(start.number ?? 0)~Lesson\(end.number ?? 0)"
-        viewController.lessons = lessons
+        viewController.words = words
+        viewController.title = "错词本"
         navigationController?.pushViewController(viewController, animated: true)
     }
 
 }
 
 extension ErrorWordsViewController: UITableViewDelegate, UITableViewDataSource {
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return words?.count ?? 0
     }
@@ -143,22 +128,14 @@ extension ErrorWordsViewController: UITableViewDelegate, UITableViewDataSource {
 
         return cell
     }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0.01
+    }
     
-//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-//
-//        let headerView: WordListHeaderView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "headerView") as! WordListHeaderView
-//        if let lessons = lessons {
-//            let lesson = lessons[section]
-//
-//            headerView.titleLabel.text = "Lesson \(lesson.number ?? 1)"
-//        }
-//
-//        return headerView
-//    }
-    
-//    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-//        return 30
-//    }
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0.01
+    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let lessons = lessons else { return }
@@ -186,25 +163,17 @@ extension ErrorWordsViewController: UITableViewDelegate, UITableViewDataSource {
 extension ErrorWordsViewController: WordStudyCellDelegate {
     func operation(cell: WordStudyCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
-        
-        guard let lessons = lessons else { return }
-        
-        let lesson = lessons[indexPath.section]
-        let word = lesson.words[indexPath.row]
-        guard let wordId = word.id else { return }
+
+        guard let wordId = words?[indexPath.row].id else { return }
         
         words?.remove(at: indexPath.row)
+        tableView.deleteRows(at: [indexPath], with: .fade)
         DB.shared.delete(error: wordId)
-
-        tableView.reloadData()
     }
     
     func playUSAudio(cell: WordStudyCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         
-        guard let lessons = lessons else { return }
-        
-        let lesson = lessons[indexPath.section]
         guard let audio_path = words?[indexPath.row].audio_path_us else { return }
         
         let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")

@@ -32,13 +32,14 @@ class WordStudyViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.rowHeight = 90
+        tableView.rowHeight = 100
         tableView.keyboardDismissMode = .onDrag
         tableView.register(WordStudyCell.self, forCellReuseIdentifier: "cell")
         tableView.register(WordListHeaderView.self, forHeaderFooterViewReuseIdentifier: "headerView")
         if #available(iOS 15.0, *) {
               tableView.sectionHeaderTopPadding = 0
         }
+        tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 80, right: 0)
         return tableView
     }()
     
@@ -54,7 +55,7 @@ class WordStudyViewController: UIViewController {
             make.top.equalTo(view.snp.top)
             make.left.equalTo(view.snp.left)
             make.right.equalTo(view.snp.right)
-            make.bottom.equalTo(dictationButton.snp.top)
+            make.bottom.equalTo(view.snp.bottom)
         }
         dictationButton.snp.makeConstraints { make in
             make.left.equalTo(view.snp.left).offset(20)
@@ -161,20 +162,10 @@ extension WordStudyViewController: UITableViewDelegate, UITableViewDataSource {
         
         let lesson = lessons[indexPath.section]
         let word = lesson.words[indexPath.row]
-        var audio_path: String?
-        if APP.shared.pronunciationType == 0 {
-            audio_path = word.audio_path_us
-        } else {
-            audio_path = word.audio_path_uk
-        }
-        
-        guard let audio_path = audio_path else { return }
-        
-        let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
-        AudioPlayer.shared.prepareToPlay(with: url)
-        if AudioPlayer.shared.prepareToPlay(with: url) {
-            AudioPlayer.shared.play()
-        }
+
+        let viewController = WordDetailViewController()
+        viewController.word = word
+        navigationController?.pushViewController(viewController, animated: true)
     }
 
 }
@@ -191,8 +182,10 @@ extension WordStudyViewController: WordStudyCellDelegate {
         
         if errorWords.contains(wordId) {
             // 移除
-            errorWords.removeFirst(wordId)
-            DB.shared.delete(error: wordId)
+            if let index = errorWords.firstIndex(of: wordId) {
+                errorWords.remove(at: index)
+                DB.shared.delete(error: wordId)
+            }
         } else {
             // 添加
             errorWords.append(wordId)
@@ -225,7 +218,6 @@ extension WordStudyViewController: WordStudyCellDelegate {
         guard let audio_path = lesson.words[indexPath.row].audio_path_uk else { return }
         
         let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
-        AudioPlayer.shared.prepareToPlay(with: url)
         if AudioPlayer.shared.prepareToPlay(with: url) {
             AudioPlayer.shared.play()
         }

@@ -96,25 +96,43 @@ class WordListViewController: UIViewController {
 
 extension WordListViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return lessons?.count ?? 0
+        if let lessons = lessons {
+            return lessons.count
+        }
+        return 1
     }
     
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let lessons = lessons else { return 0 }
-        
-        let lesson = lessons[section]
-        
-        return lesson.words.count
+        if let lessons = lessons {
+            let lesson = lessons[section]
+            return lesson.words.count
+        } else if let words = words {
+            return words.count
+        }
+
+        return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell")!
         cell.backgroundColor = view.backgroundColor
         
+
         if let lessons = lessons {
             let lesson = lessons[indexPath.section]
             let word = lesson.words[indexPath.row]
+            if word == self.word {
+                cell.textLabel?.textColor = UIColor(red: 220.0 / 255.0, green: 168.0 / 255.0, blue: 78.0 / 255.0, alpha: 1)
+            } else {
+                cell.textLabel?.textColor = .white
+            }
+            
+            let soundmark = word.soundmark_us != nil ? "[\(word.soundmark_us!)]" : ""
+            
+            cell.textLabel?.text = "\(word.english ?? "") \(soundmark) \(word.chinese ?? "")"
+        } else if let words = words {
+            let word = words[indexPath.row]
             if word == self.word {
                 cell.textLabel?.textColor = UIColor(red: 220.0 / 255.0, green: 168.0 / 255.0, blue: 78.0 / 255.0, alpha: 1)
             } else {
@@ -130,28 +148,36 @@ extension WordListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-
-        let headerView: WordListHeaderView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "headerView") as! WordListHeaderView
         if let lessons = lessons {
+            let headerView: WordListHeaderView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "headerView") as! WordListHeaderView
             let lesson = lessons[section]
             
             headerView.titleLabel.text = "Lesson \(lesson.number ?? 1)"
+            return headerView
+        } else {
+            return nil
         }
-        
-        return headerView
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 30
+        if lessons != nil {
+            return 30
+        }
+        return 0.01
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let lessons = lessons else { return }
+//        let lesson = lessons?[indexPath.section]
+//        let word = lesson.words[indexPath.row]
         
-        let lesson = lessons[indexPath.section]
-        let word = lesson.words[indexPath.row]
+        if let lesson = lessons?[indexPath.section] {
+            delegate?.select(word: lesson.words[indexPath.row])
+        } else if let words = words {
+            delegate?.select(word: words[indexPath.row])
+        }
         
-        delegate?.select(word: word)
+        
+        dismiss(animated: true, completion: nil)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

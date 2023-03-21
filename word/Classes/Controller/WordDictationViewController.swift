@@ -12,8 +12,7 @@ let PrepareToPlayNotification = NSNotification.Name(rawValue: "PrepareToPlayNoti
 
 class WordDictationViewController: UIViewController {
 
-    private var words = [Word]()
-    
+    var words = [Word]()
     var lessons: [Lesson]?
 
     private var playCount: Int = 0
@@ -120,13 +119,13 @@ class WordDictationViewController: UIViewController {
                     words.append(word)
                 }
             }
-            
-            let flag = prepareToPlay(with: playIndex)
-            if flag {
-                print("准备成功")
-            } else {
-                print("准备失败")
-            }
+        }
+        
+        let flag = prepareToPlay(with: playIndex)
+        if flag {
+            print("准备成功")
+        } else {
+            print("准备失败")
         }
     }
     
@@ -261,7 +260,11 @@ class WordDictationViewController: UIViewController {
     @objc func onList() {
         let viewController = WordListViewController()
         viewController.delegate = self
-        viewController.lessons = lessons
+        if lessons != nil {
+            viewController.lessons = lessons
+        } else {
+            viewController.words = words
+        }
         if playIndex >= 0 && words.count > 0 && playIndex < words.count {
             viewController.word = words[playIndex]
         }
@@ -287,7 +290,6 @@ class WordDictationViewController: UIViewController {
 
         countLabel.text = "\(playIndex + 1) / \(words.count)"
     
-        
         englishLabel.text = word.english
         chineseLabel.text = word.chinese
         
@@ -384,11 +386,16 @@ extension WordDictationViewController: DictationSettingsViewControllerDelegate {
 extension WordDictationViewController: WordListViewControllerDelegate {
     func select(word: Word) {
         
-        if let index = words.firstIndex(of: word) {
-            playIndex = index
-            play(index: playIndex)
+        guard let index = words.firstIndex(of: word) else {
+            return
         }
         
+        playIndex = index
+        if playButton.isSelected {
+            play(index: playIndex)
+        } else {
+            prepareToPlay(with: playIndex)
+        }
     }
 }
 

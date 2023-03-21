@@ -10,7 +10,6 @@ import UIKit
 class WordChoiceViewController: UIViewController {
     
     var book: Book!
-    var words = [Word]()
 
     var startLesson: Lesson?
     var endLesson: Lesson?
@@ -77,7 +76,7 @@ class WordChoiceViewController: UIViewController {
         setupUI()
         
         if let book = book, book.lessons.count == 0 {
-            book.lessons = DB.shared.allLessons(with: book)
+            book.lessons = DB.shared.get(lessonsBy: book.id)
         }
     }
 
@@ -96,7 +95,7 @@ class WordChoiceViewController: UIViewController {
         view.addSubview(tableView)
         containerView.snp.makeConstraints { make in
             make.left.right.bottom.equalTo(view)
-            make.height.equalTo(80)
+            make.height.equalTo(90)
         }
         tableView.snp.makeConstraints { (make) in
             make.top.equalTo(view.snp.top)
@@ -112,13 +111,15 @@ class WordChoiceViewController: UIViewController {
         dictationButton.snp.makeConstraints { make in
             make.height.equalTo(dictationButton.layer.cornerRadius * 2)
             make.left.equalTo(countLabel.snp.right).offset(5)
-            make.top.equalTo(containerView.snp.top)
+            make.top.equalTo(containerView.snp.top).offset(10)
             make.right.equalTo(studyButton.snp.left).offset(-10)
         }
         studyButton.snp.makeConstraints { make in
             make.top.bottom.width.equalTo(dictationButton)
             make.right.equalTo(containerView.snp.right).offset(-20)
         }
+        
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "全选", style: .done, target: self, action: #selector(onSelectAll))
     }
 
     func getChoiceIndex() ->(startIndex: Int?, endIndex: Int?) {
@@ -141,6 +142,20 @@ class WordChoiceViewController: UIViewController {
         }
     }
     
+    func choiceFinish() {
+        let index = getChoiceIndex()
+        guard let startIndex = index.startIndex, let endIndex = index.endIndex else { return  }
+        var count = 0
+        for i in startIndex...endIndex {
+            let lesson = book.lessons[i]
+            lessons.append(lesson)
+            let words = DB.shared.get(wordsBy: lesson.id)
+            lesson.words = words
+            count += words.count
+        }
+        countLabel.text = "已选:\(count)个"
+    }
+    
     @objc func onBack() {
         dismiss(animated: true, completion: nil)
     }
@@ -159,12 +174,6 @@ class WordChoiceViewController: UIViewController {
         viewController.title = "Lesson \(start.number ?? 0)~Lesson\(end.number ?? 0)"
         viewController.lessons = lessons
         navigationController?.pushViewController(viewController, animated: true)
-        
-        startLesson = nil
-        endLesson = nil
-        countLabel.text = "已选:0个"
-        lessons.removeAll()
-        tableView.reloadData()
     }
     
     @objc func onDictation() {
@@ -181,11 +190,12 @@ class WordChoiceViewController: UIViewController {
         viewController.title = "Lesson \(start.number ?? 0)~Lesson\(end.number ?? 0)"
         viewController.lessons = lessons
         navigationController?.pushViewController(viewController, animated: true)
-        
-        startLesson = nil
-        endLesson = nil
-        countLabel.text = "已选:0个"
-        lessons.removeAll()
+    }
+    
+    @objc func onSelectAll() {
+        startLesson = book.lessons.first
+        endLesson = book.lessons.last
+        choiceFinish()
         tableView.reloadData()
     }
 }
@@ -211,7 +221,6 @@ extension WordChoiceViewController: UITableViewDelegate, UITableViewDataSource {
             if indexPath.row >= startIndex && indexPath.row <= endIndex && startIndex != endIndex {
                 cell.type = .selected
             } else {
-                
                 cell.type = .unselected
             }
         } else {
@@ -243,32 +252,14 @@ extension WordChoiceViewController: UITableViewDelegate, UITableViewDataSource {
         if startLesson == nil {
             // 选择开始
             startLesson = lesson
-            
             lessons.removeAll()
-            
             countLabel.text = "已选:0个"
         } else {
             endLesson = lesson
-
-            let index = getChoiceIndex()
             
-            guard let startIndex = index.startIndex, let endIndex = index.endIndex else { return  }
-
-            var words = [Word]()
-            
-            for i in startIndex...endIndex {
-                let lesson = book.lessons[i]
-                lessons.append(lesson)
-                for word in lesson.words {
-                    words.append(word)
-                }
-            }
-            countLabel.text = "已选:\(words.count)个"
+            choiceFinish()
         }
         
         tableView.reloadData()
     }
-    
-    
-    
 }

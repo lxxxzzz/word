@@ -32,6 +32,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillTerminate(_ application: UIApplication) {
         CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
+        
+        DB.shared.businessDB.close()
+        DB.shared.wordDB.close()
     }
 
 }

@@ -35,7 +35,7 @@ class WordListHeaderView: UITableViewHeaderFooterView {
         containerView.snp.makeConstraints { make in
             make.width.equalTo(100)
             make.height.equalTo(30)
-            make.left.equalTo(contentView.snp.left).offset(20)
+            make.left.equalTo(contentView.snp.left).offset(10)
             make.centerY.equalTo(contentView.snp.centerY)
         }
         
