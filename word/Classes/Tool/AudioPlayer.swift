@@ -17,7 +17,16 @@ class AudioPlayer: NSObject {
     
     var url: URL!
     var player: AVAudioPlayer!
-    var isPaused: Bool = false
+//    var isPaused: Bool = false
+    
+    open var isPlaying: Bool {
+        if player == nil {
+            return false
+        }
+        return player.isPlaying
+    }
+    
+//    open var isPlaying: Bool { get }
     
     static let shared = AudioPlayer()
     
@@ -67,7 +76,7 @@ extension AudioPlayer {
     }
     
     func play() {
-        isPaused = false
+//        isPaused = false
         
         guard player != nil else { return }
 
@@ -82,7 +91,7 @@ extension AudioPlayer {
     func pause() {
         guard player != nil else { return }
         guard player.isPlaying else { return }
-        isPaused = true
+//        isPaused = true
         
         player.pause()
     }

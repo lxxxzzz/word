@@ -12,9 +12,8 @@ class DictationResultViewController: UIViewController {
     
     var endIndex = -1
     var words: [Word]?
-    var errorWords = [Word]()
+    var errorWords = [Int]()
     var unwrittenWords = [Word]()
-    var errorWordLibrary = DB.shared.allErrorWords()
 
     private lazy var tableView : UITableView = {
         let tableView = UITableView(frame: CGRect(x: 0, y: 0, width: 0, height: 0), style: .plain)
@@ -79,7 +78,10 @@ class DictationResultViewController: UIViewController {
         guard let totalCount = words?.count else { return }
         
         let alertController = UIAlertController(title: "听写结果", message: "共听写\(totalCount)个\n写错\(errorWords.count)个\n未写\(unwrittenWords.count)个", preferredStyle: .alert)
-        let alertAction = UIAlertAction(title: "确定", style: .default, handler: nil)
+        let alertAction = UIAlertAction(title: "确定", style: .default) { _ in
+            DB.shared.insert(error: self.errorWords)
+            self.navigationController?.popToRootViewController(animated: true)
+        }
         alertController.addAction(alertAction)
         present(alertController, animated: true, completion: nil)
     }
@@ -90,27 +92,14 @@ extension DictationResultViewController: DictationResultCellDelegate {
         guard let data = words else { return }
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let word = data[indexPath.row]
-        if !errorWords.contains(word) {
-            errorWords.append(data[indexPath.row])
+        if !errorWords.contains(word.id!) {
+            errorWords.append(word.id!)
         } else {
-            if let index = errorWords.firstIndex(of: word) {
+            if let index = errorWords.firstIndex(of: word.id!) {
                 errorWords.remove(at: index)
             }
         }
         
-        guard let wordId = word.id else { return }
-
-        if errorWordLibrary.contains(wordId) {
-            // 移除
-            if let index = errorWordLibrary.firstIndex(of: wordId) {
-                errorWordLibrary.remove(at: index)
-                DB.shared.delete(error: wordId)
-            }
-        } else {
-            // 添加
-            errorWordLibrary.append(wordId)
-            DB.shared.insert(error: wordId)
-        }
         tableView.reloadData()
     }
 }
@@ -134,7 +123,7 @@ extension DictationResultViewController: UITableViewDelegate, UITableViewDataSou
                 cell.flagLabel.layer.borderColor = UIColor.gray.cgColor
                 cell.operationButton.isHidden = true
                 unwrittenWords.append(word)
-            } else if errorWords.contains(word) {
+            } else if errorWords.contains(word.id!) {
                 cell.flagLabel.isHidden = false
                 cell.flagLabel.text = "写错"
                 cell.flagLabel.textColor = .red

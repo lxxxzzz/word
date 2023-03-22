@@ -187,7 +187,7 @@ class WordDetailViewController: UIViewController {
             ukSoundmarkLabel.text = "[\(soundmark_uk)]"
         }
 
-        if errorWords.contains(word.id!) {
+        if errorWords.keys.contains(word.id!) {
             errorFlagLabel.isHidden = false
             operationButton.isSelected = true
         } else {
@@ -227,16 +227,13 @@ class WordDetailViewController: UIViewController {
         
         guard let wordId = word.id else { return }
         
-        if errorWords.contains(wordId) {
+        if errorWords.keys.contains(wordId) {
             // 移除
-            if let index = errorWords.firstIndex(of: wordId) {
-                errorWords.remove(at: index)
-                DB.shared.delete(error: wordId)
-            }
-            
+            errorWords.removeValue(forKey: wordId)
+            DB.shared.delete(error: wordId)
         } else {
             // 添加
-            errorWords.append(wordId)
+            errorWords[wordId] = 1
             DB.shared.insert(error: wordId)
         }
     }

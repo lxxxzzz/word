@@ -84,6 +84,12 @@ extension DB {
         }
     }
     
+    func insert(error wordIds: [Int]) {
+        for wordId in wordIds {
+            insert(error: wordId)
+        }
+    }
+    
     func delete(error wordId: Int) {
         let sql = "DELETE FROM t_error_words WHERE word_id = ?"
         let flag = businessDB.executeUpdate(sql, withArgumentsIn: [wordId])
@@ -94,20 +100,7 @@ extension DB {
         }
     }
     
-    func allErrorWords() -> [Int] {
-        var words = [Int]()
-        let sql = "SELECT * FROM t_error_words"
-        guard let result = businessDB.executeQuery(sql, withArgumentsIn: []) else {
-            return words
-        }
-        while result.next() {
-            let word_id = Int(result.int(forColumn: "word_id"))
-            words.append(word_id)
-        }
-        return words
-    }
-    
-    func allErrorInfoWords() -> [Int : Int] {
+    func allErrorWords() -> [Int : Int] {
         var words = [Int : Int]()
         let sql = "SELECT * FROM t_error_words"
         guard let result = businessDB.executeQuery(sql, withArgumentsIn: []) else {

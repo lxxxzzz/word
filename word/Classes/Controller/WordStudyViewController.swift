@@ -12,7 +12,6 @@ class WordStudyViewController: UIViewController {
     var words: [Word]?
     var lessons: [Lesson]?
     var errorWords = DB.shared.allErrorWords()
-    var allErrorInfoWords = DB.shared.allErrorInfoWords()
     
     public lazy var dictationButton: UIButton = {
         let button = UIButton()
@@ -125,7 +124,7 @@ extension WordStudyViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.usSoundmarkLabel.text = ""
             }
             
-            if let count = allErrorInfoWords[word.id!] {
+            if let count = errorWords[word.id!] {
                 cell.errorFlagLabel.isHidden = false
                 cell.operationButton.isSelected = true
                 cell.errorFlagLabel.text = "写错\(count)次"
@@ -133,14 +132,6 @@ extension WordStudyViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.errorFlagLabel.isHidden = true
                 cell.operationButton.isSelected = false
             }
-            
-//            if errorWords.contains(word.id!) {
-//                cell.errorFlagLabel.isHidden = false
-//                cell.operationButton.isSelected = true
-//            } else {
-//                cell.errorFlagLabel.isHidden = true
-//                cell.operationButton.isSelected = false
-//            }
             
             cell.wordLabel.text = word.english
             cell.chineseLabel.text = word.chinese
@@ -190,15 +181,13 @@ extension WordStudyViewController: WordStudyCellDelegate {
         let word = lesson.words[indexPath.row]
         guard let wordId = word.id else { return }
         
-        if errorWords.contains(wordId) {
+        if errorWords.keys.contains(wordId) {
             // 移除
-            if let index = errorWords.firstIndex(of: wordId) {
-                errorWords.remove(at: index)
-                DB.shared.delete(error: wordId)
-            }
+            errorWords.removeValue(forKey: wordId)
+            DB.shared.delete(error: wordId)
         } else {
             // 添加
-            errorWords.append(wordId)
+            errorWords[wordId] = 1
             DB.shared.insert(error: wordId)
         }
 

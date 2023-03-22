@@ -17,7 +17,6 @@ class WordDictationViewController: UIViewController {
 
     private var playCount: Int = 0
     
-    
     var playIndex = 0
     var pronunciation: Int = 0
     var task: DispatchWorkItem?
@@ -29,6 +28,7 @@ class WordDictationViewController: UIViewController {
         label.textColor = UIColor(red: 220.0 / 255.0, green: 168.0 / 255.0, blue: 78.0 / 255.0, alpha: 1)
         return label
     }()
+    
     lazy var soundmarkLabel: UILabel = {
         var label = UILabel()
         label.font = UIFont.systemFont(ofSize: 20)
@@ -51,9 +51,9 @@ class WordDictationViewController: UIViewController {
         label.textColor = .white
         label.textAlignment = .left
         label.numberOfLines = 0
-        
         return label
     }()
+    
     lazy var countLabel: UILabel = {
         var label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
@@ -61,6 +61,7 @@ class WordDictationViewController: UIViewController {
         label.textColor = UIColor(red: 155.0 / 255.0, green: 157.0 / 255.0, blue: 168.0 / 255.0, alpha: 1)
         return label
     }()
+    
     lazy var toolBar: UIView = {
         var toolBar = UIView()
         toolBar.backgroundColor = UIColor(red: 42.0 / 255.0, green: 45.0 / 255.0, blue: 64.0 / 255.0, alpha: 1)
@@ -78,7 +79,6 @@ class WordDictationViewController: UIViewController {
     lazy var stopButton: UIButton = {
         var button = UIButton()
         button.setImage(UIImage(named: "stop"), for: .normal)
-//        button.setImage(UIImage(named: "pause"), for: .selected)
         button.addTarget(self, action: #selector(onStop), for: .touchUpInside)
         return button
     }()
@@ -115,8 +115,6 @@ class WordDictationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        UIApplication.shared.isIdleTimerDisabled = true
-        
         setupUI()
 
         setupAudioPlayer()
@@ -138,6 +136,18 @@ class WordDictationViewController: UIViewController {
         
         // 默认是隐藏的
         onHidden(sender: hiddenButton)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        UIApplication.shared.isIdleTimerDisabled = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        UIApplication.shared.isIdleTimerDisabled = false
     }
     
     func setupUI() {
@@ -364,6 +374,10 @@ class WordDictationViewController: UIViewController {
 
         play(index: playIndex)
     }
+    
+    deinit {
+        print("听写页面被释放了")
+    }
 }
 
 extension WordDictationViewController: AudioPlayerDelegate {
@@ -372,8 +386,9 @@ extension WordDictationViewController: AudioPlayerDelegate {
 
         if playCount < APP.shared.repeatCount {
             // 继续播放
-            task = DispatchWorkItem {
-                guard player.isPaused == false else { return }
+            task = DispatchWorkItem { [weak self] in
+                guard let wself = self else { return }
+                guard wself.playButton.isSelected else { return }
                 
                 player.play()
             }
@@ -383,16 +398,20 @@ extension WordDictationViewController: AudioPlayerDelegate {
             playCount = 0
             
             if playIndex == words.count - 1 {
+                // 播放按钮状态改变
+                playButton.isSelected = false
                 print("已经全部听写完毕")
                 let resultViewController = DictationResultViewController()
                 resultViewController.words = words
+                resultViewController.endIndex = playIndex
                 navigationController?.pushViewController(resultViewController, animated: true)
                 return
             }
             task = DispatchWorkItem { [weak self] in
-                guard player.isPaused == false else { return }
+                guard let wself = self else { return }
+                guard wself.playButton.isSelected else { return }
                 
-                self?.playNext()
+                wself.playNext()
             }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + APP.shared.deadline, execute: task!)
