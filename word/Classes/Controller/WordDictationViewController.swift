@@ -425,8 +425,6 @@ extension WordDictationViewController: DictationSettingsViewControllerDelegate {
         APP.shared.repeatInterval = interval
         APP.shared.deadline = deadline
         APP.shared.pronunciationType = pronunciation
-        
-        prepareToPlay(with: playIndex)
     }
 }
 
