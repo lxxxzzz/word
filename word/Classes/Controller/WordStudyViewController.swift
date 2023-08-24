@@ -200,9 +200,8 @@ extension WordStudyViewController: WordStudyCellDelegate {
         guard let lessons = lessons else { return }
         
         let lesson = lessons[indexPath.section]
-        guard let audio_path = lesson.words[indexPath.row].audio_path_us else { return }
-        
-        let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
+        let word = lesson.words[indexPath.row]
+        guard let url = word.us_url else { return }
         if AudioPlayer.shared.prepareToPlay(with: url) {
             AudioPlayer.shared.play()
         }
@@ -214,9 +213,8 @@ extension WordStudyViewController: WordStudyCellDelegate {
         guard let lessons = lessons else { return }
         
         let lesson = lessons[indexPath.section]
-        guard let audio_path = lesson.words[indexPath.row].audio_path_uk else { return }
-        
-        let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
+        let word = lesson.words[indexPath.row]
+        guard let url = word.uk_url else { return }
         if AudioPlayer.shared.prepareToPlay(with: url) {
             AudioPlayer.shared.play()
         }

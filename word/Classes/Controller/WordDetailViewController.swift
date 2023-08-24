@@ -37,28 +37,12 @@ class WordDetailViewController: UIViewController {
         return label
     }()
     
-    public lazy var ukSoundmarkLabel: UILabel = {
-        var label = UILabel()
-        label.textColor = .white
-        label.font = .light(14)
-        label.numberOfLines = 0
-        return label
-    }()
-    
-    public lazy var usSoundmarkLabel: UILabel = {
-        var label = UILabel()
-        label.textColor = ukSoundmarkLabel.textColor
-        label.font = ukSoundmarkLabel.font
-        label.numberOfLines = 0
-        return label
-    }()
-    
     public lazy var ukAudioButton: UIButton = {
         let button = UIButton()
         button.setTitle("英", for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = 15
         button.layer.masksToBounds = true
-        button.backgroundColor = .gray
+        button.backgroundColor = chineseContainerView.backgroundColor
         button.titleLabel?.font = UIFont.light(10)
         button.setTitleColor(.white, for: .normal)
         button.addTarget(self, action: #selector(onPlayUK), for: .touchUpInside)
@@ -74,6 +58,18 @@ class WordDetailViewController: UIViewController {
         button.titleLabel?.font = ukAudioButton.titleLabel?.font
         button.setTitleColor(.white, for: .normal)
         button.addTarget(self, action: #selector(onPlayUS), for: .touchUpInside)
+        return button
+    }()
+    
+    public lazy var networkAudioButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("网络发音", for: .normal)
+        button.layer.cornerRadius = ukAudioButton.layer.cornerRadius
+        button.layer.masksToBounds = true
+        button.backgroundColor = ukAudioButton.backgroundColor
+        button.titleLabel?.font = ukAudioButton.titleLabel?.font
+        button.setTitleColor(.white, for: .normal)
+        button.addTarget(self, action: #selector(onPlayNetwork), for: .touchUpInside)
         return button
     }()
     
@@ -111,9 +107,8 @@ class WordDetailViewController: UIViewController {
         view.addSubview(chineseContainerView)
         chineseContainerView.addSubview(chineseLabel)
         view.addSubview(usAudioButton)
-        view.addSubview(usSoundmarkLabel)
         view.addSubview(ukAudioButton)
-        view.addSubview(ukSoundmarkLabel)
+        view.addSubview(networkAudioButton)
         view.addSubview(operationButton)
         view.addSubview(errorFlagLabel)
 
@@ -125,29 +120,23 @@ class WordDetailViewController: UIViewController {
         usAudioButton.snp.makeConstraints { make in
             make.left.equalTo(englishLabel.snp.left)
             make.top.equalTo(englishLabel.snp.bottom).offset(20)
-            make.height.equalTo(20)
-            make.width.equalTo(40)
+            make.height.equalTo(30)
         }
-        usSoundmarkLabel.snp.makeConstraints { make in
-            make.left.equalTo(usAudioButton.snp.right).offset(5)
-            make.centerY.equalTo(usAudioButton.snp.centerY)
-            make.right.equalTo(englishLabel.snp.right)
-        }
-
+        
         ukAudioButton.snp.makeConstraints { make in
             make.top.equalTo(usAudioButton.snp.bottom).offset(10)
             make.left.height.width.equalTo(usAudioButton)
         }
-        ukSoundmarkLabel.snp.makeConstraints { make in
-            make.left.equalTo(ukAudioButton.snp.right).offset(5)
-            make.centerY.equalTo(ukAudioButton.snp.centerY)
-            make.right.equalTo(usSoundmarkLabel.snp.right)
+        
+        networkAudioButton.snp.makeConstraints { make in
+            make.top.equalTo(ukAudioButton.snp.bottom).offset(10)
+            make.left.height.width.equalTo(usAudioButton)
         }
         
         chineseContainerView.snp.makeConstraints { make in
             make.left.equalTo(view.snp.left).offset(20)
             make.right.equalTo(view.snp.right).offset(-20)
-            make.top.equalTo(ukAudioButton.snp.bottom).offset(20)
+            make.top.equalTo(networkAudioButton.snp.bottom).offset(20)
             make.height.greaterThanOrEqualTo(50)
         }
         chineseLabel.snp.makeConstraints { make in
@@ -181,10 +170,10 @@ class WordDetailViewController: UIViewController {
         chineseLabel.text = word.chinese
 
         if let soundmark_us = word.soundmark_us {
-            usSoundmarkLabel.text = "[\(soundmark_us)]"
+            usAudioButton.setTitle("    英 /\(soundmark_us)/    ", for: .normal)
         }
         if let soundmark_uk = word.soundmark_uk {
-            ukSoundmarkLabel.text = "[\(soundmark_uk)]"
+            ukAudioButton.setTitle("    美 /\(soundmark_uk)/    ", for: .normal)
         }
 
         if errorWords.keys.contains(word.id!) {
@@ -196,13 +185,57 @@ class WordDetailViewController: UIViewController {
         }
     }
     
+    @objc func onPlayNetwork() {
+        guard let word = word else {
+            return
+        }
+        var path = "/audio"
+
+        if APP.shared.pronunciationType == 0 {
+            path.append("/us")
+        } else {
+            path.append("/uk")
+        }
+        
+        let fullPath = "\(cachePath)\(path)"
+
+        if let url = DownloadManager.shared.find(fileWith: fullPath, filename: word.english!)?.url {
+            // 已经存在了，直接播放
+            if AudioPlayer.shared.prepareToPlay(with: url) {
+                AudioPlayer.shared.play()
+            }
+        } else {
+            // 不存在，下载
+            DownloadManager.shared.download(with: fullPath, word: word.english!, type: "0") { error, filePath, filename in
+                guard let full_path = filePath else {
+                    print(error)
+                    print("有道下载失败[\(word.english!)]")
+                    return
+                }
+                guard let filename = filename else { return }
+                
+                let dbPath = "\(path)/\(filename)"
+                print(dbPath)
+                
+                if APP.shared.pronunciationType == 0 {
+                    word.audio_path_us = dbPath
+                    DB.shared.db.executeUpdate("UPDATE t_words set audio_path_us = ? where id = ?", withArgumentsIn: [dbPath, word.id!])
+                } else {
+                    word.audio_path_uk = dbPath
+                    DB.shared.db.executeUpdate("UPDATE t_words set audio_path_uk = ? where id = ?", withArgumentsIn: [dbPath, word.id!])
+                }
+                if AudioPlayer.shared.prepareToPlay(with: full_path) {
+                    AudioPlayer.shared.play()
+                }
+            }
+        }
+    }
+    
     @objc func onPlayUK() {
         guard let word = word else {
             return
         }
-        
-        guard let audio_path = word.audio_path_uk else { return }
-        let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
+        guard let url = word.uk_url else { return }
         if AudioPlayer.shared.prepareToPlay(with: url) {
             AudioPlayer.shared.play()
         }
@@ -212,9 +245,7 @@ class WordDetailViewController: UIViewController {
         guard let word = word else {
             return
         }
-        
-        guard let audio_path = word.audio_path_us else { return }
-        let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
+        guard let url = word.us_url else { return }
         if AudioPlayer.shared.prepareToPlay(with: url) {
             AudioPlayer.shared.play()
         }

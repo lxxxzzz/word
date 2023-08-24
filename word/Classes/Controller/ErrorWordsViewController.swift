@@ -144,22 +144,12 @@ extension ErrorWordsViewController: UITableViewDelegate, UITableViewDataSource {
         
         let lesson = lessons[indexPath.section]
         let word = lesson.words[indexPath.row]
-        var audio_path: String?
-        if APP.shared.pronunciationType == 0 {
-            audio_path = word.audio_path_us
-        } else {
-            audio_path = word.audio_path_uk
-        }
         
-        guard let audio_path = audio_path else { return }
-        
-        let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
-        AudioPlayer.shared.prepareToPlay(with: url)
+        guard let url = word.url else { return }
         if AudioPlayer.shared.prepareToPlay(with: url) {
             AudioPlayer.shared.play()
         }
     }
-
 }
 
 extension ErrorWordsViewController: WordStudyCellDelegate {
@@ -176,9 +166,9 @@ extension ErrorWordsViewController: WordStudyCellDelegate {
     func playUSAudio(cell: WordStudyCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         
-        guard let audio_path = words?[indexPath.row].audio_path_us else { return }
+        guard let word = words?[indexPath.row] else { return }
         
-        let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
+        guard let url = word.us_url else { return }
         if AudioPlayer.shared.prepareToPlay(with: url) {
             AudioPlayer.shared.play()
         }
@@ -187,10 +177,9 @@ extension ErrorWordsViewController: WordStudyCellDelegate {
     func playUKAudio(cell: WordStudyCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
 
-        guard let audio_path = words?[indexPath.row].audio_path_uk else { return }
+        guard let word = words?[indexPath.row] else { return }
         
-        let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
-        AudioPlayer.shared.prepareToPlay(with: url)
+        guard let url = word.uk_url else { return }
         if AudioPlayer.shared.prepareToPlay(with: url) {
             AudioPlayer.shared.play()
         }

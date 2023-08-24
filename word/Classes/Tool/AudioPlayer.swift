@@ -17,7 +17,6 @@ class AudioPlayer: NSObject {
     
     var url: URL!
     var player: AVAudioPlayer!
-//    var isPaused: Bool = false
     
     open var isPlaying: Bool {
         if player == nil {
@@ -25,8 +24,6 @@ class AudioPlayer: NSObject {
         }
         return player.isPlaying
     }
-    
-//    open var isPlaying: Bool { get }
     
     static let shared = AudioPlayer()
     

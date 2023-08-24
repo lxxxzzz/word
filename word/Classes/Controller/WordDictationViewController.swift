@@ -18,7 +18,6 @@ class WordDictationViewController: UIViewController {
     private var playCount: Int = 0
     
     var playIndex = 0
-    var pronunciation: Int = 0
     var task: DispatchWorkItem?
 
     lazy var englishLabel: UILabel = {
@@ -244,7 +243,7 @@ class WordDictationViewController: UIViewController {
         viewController.modalPresentationStyle = .overFullScreen
         viewController.modalTransitionStyle = .crossDissolve
         viewController.delegate = self
-        viewController.typeControl.selectedSegmentIndex = pronunciation
+        viewController.typeControl.selectedSegmentIndex = APP.shared.pronunciationType
         viewController.deadlineStepper.value = APP.shared.deadline
         viewController.repeatCountStepper.value = Double(APP.shared.repeatCount)
         viewController.repeatIntervalStepper.value = APP.shared.repeatInterval
@@ -332,26 +331,20 @@ class WordDictationViewController: UIViewController {
         chineseLabel.text = word.chinese
         
         var soundmark: String?
-        var audio_path: String?
-        if pronunciation == 0 {
+        if APP.shared.pronunciationType == 0 {
             soundmark = word.soundmark_us
-            audio_path = word.audio_path_us
         } else {
             soundmark = word.soundmark_uk
-            audio_path = word.audio_path_uk
         }
         
         if let soundmark = soundmark {
             soundmarkLabel.text = "[\(soundmark)]"
         }
-        
-        guard let audio_path = audio_path else {
-            return false
-        }
-
-        let url = URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
 
         NotificationCenter.default.post(name: PrepareToPlayNotification, object: word)
+        
+        guard let url = word.url else { return false }
+
         return AudioPlayer.shared.prepareToPlay(with: url)
     }
     
@@ -441,6 +434,54 @@ extension WordDictationViewController: WordListViewControllerDelegate {
         } else {
             prepareToPlay(with: playIndex)
         }
+    }
+}
+
+extension Word {
+    var url: URL? {
+        var audio_path: String?
+        if APP.shared.pronunciationType == 0 {
+            audio_path = audio_path_us
+        } else {
+            audio_path = audio_path_uk
+        }
+
+        guard let audio_path = audio_path else {
+            return nil
+        }
+        let localPath = "\(cachePath)\(audio_path)"
+        
+        if FileManager.default.fileExists(atPath: localPath) {
+            return URL(fileURLWithPath: localPath)
+        }
+        
+        return URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
+    }
+    
+    var us_url: URL? {
+        guard let audio_path = audio_path_us else {
+            return nil
+        }
+        let localPath = "\(cachePath)\(audio_path)"
+        
+        if FileManager.default.fileExists(atPath: localPath) {
+            return URL(fileURLWithPath: localPath)
+        }
+        
+        return URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
+    }
+    
+    var uk_url: URL? {
+        guard let audio_path = audio_path_uk else {
+            return nil
+        }
+        let localPath = "\(cachePath)\(audio_path)"
+        
+        if FileManager.default.fileExists(atPath: localPath) {
+            return URL(fileURLWithPath: localPath)
+        }
+        
+        return URL(fileURLWithPath: "\(bundlePath)/audio/\(audio_path)")
     }
 }
 

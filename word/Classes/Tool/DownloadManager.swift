@@ -108,26 +108,36 @@ extension DownloadManager {
     }
 
     
-    func download(with path: String, word:String, type: String, completion: ((_ error: String?, _ filePath: URL?) -> Void)?) {
+    func download(with path: String, word:String, type: String, completion: ((_ error: String?, _ filePath: URL?,_ filename: String?) -> Void)?) {
 
         print("使用有道下载。。。。。。。。。")
+        
         // 0美  1英
         let url = "https://dict.youdao.com/dictvoice?type=\(type)&audio=\(word)"
 
-        guard let url = url.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed) else { return }
+        guard let url = url.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed) else {
+            completion?("url encoding失败", nil, nil)
+            return
+        }
         
-        guard let taskUrl = URL(string: url) else { return }
+        guard let taskUrl = URL(string: url) else {
+            completion?("url转换失败", nil, nil)
+            return
+        }
         
         let request = URLRequest(url: taskUrl)
         let session = URLSession(configuration: .default)
         session.downloadTask(with: request) { [weak self] tempUrl, response, error in
             guard let tempUrl = tempUrl, error == nil else {
                 print("文件下载失败")
-                completion?("文件下载失败", nil)
+                completion?("文件下载失败", nil, nil)
                 return
             }
 
-            guard let servername = response?.suggestedFilename else { return }
+            guard let servername = response?.suggestedFilename else {
+                completion?("suggestedFilename获取失败", nil, nil)
+                return
+            }
             let filename = "\(word)\(servername.extension)"
             var destinationPath = URL(fileURLWithPath: path)
 
@@ -138,7 +148,8 @@ extension DownloadManager {
                 }
             } catch let error {
                 print(error)
-                completion?("文件夹目录创建失败", nil)
+                completion?("文件夹目录创建失败", nil, nil)
+                return
             }
             destinationPath = destinationPath.appendingPathComponent(filename)
             
@@ -150,17 +161,14 @@ extension DownloadManager {
                 try FileManager.default.copyItem(atPath: tempUrl.path, toPath: destinationPath.path)
                 // main
                 DispatchQueue.main.async {
-                    completion?(nil, destinationPath)
+                    completion?(nil, destinationPath, filename)
                 }
             } catch let error {
                 print(error)
-                completion?("文件移动失败", nil)
+                completion?("文件移动失败", nil, nil)
             }
         }.resume()
     }
-    
-    
-    
 }
 
 extension String {

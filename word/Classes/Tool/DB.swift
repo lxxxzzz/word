@@ -9,26 +9,31 @@ import UIKit
 import FMDB
 
 class DB: NSObject {
-    public lazy var wordDB: FMDatabase = {
-        let db = FMDatabase(path: "\(bundlePath)/data/data.sqlite")
-        if !db.open() {
-            print("businessDB数据库打开失败")
-        }
-        return db
-    }()
-    
-    public lazy var businessDB: FMDatabase = {
+    public lazy var db: FMDatabase = {
+        let sourcePath = "\(bundlePath)/data/data.sqlite"
+        var destinationPath = "\(cachePath)/db"
         do {
-            if !FileManager.default.fileExists(atPath: cachePath) {
-                try FileManager.default.createDirectory(at: URL(fileURLWithPath: cachePath), withIntermediateDirectories: true, attributes: nil)
+            let manager = FileManager.default
+
+            if !manager.fileExists(atPath: destinationPath) {
+                try manager.createDirectory(at: URL(fileURLWithPath: destinationPath), withIntermediateDirectories: true, attributes: nil)
             }
+            
+            destinationPath.append("/data.sqlite")
+            
+            if !manager.fileExists(atPath: destinationPath) {
+                try manager.copyItem(atPath: sourcePath, toPath: destinationPath)
+            } else {
+                print("已经copy过了，无需拷贝")
+            }
+            
         } catch {
-            print("businessDB目录创建失败")
+            print("db文件操作失败")
         }
-        
-        let db = FMDatabase(path: "\(cachePath)/data.sqlite")
+
+        let db = FMDatabase(path: destinationPath)
         if !db.open() {
-            print("businessDB数据库打开失败")
+            print("db数据库打开失败")
         }
         return db
     }()
@@ -57,26 +62,26 @@ class DB: NSObject {
 extension DB {
     func createTable() {
         let sql = "CREATE TABLE IF NOT EXISTS t_error_words(word_id INTEGER PRIMARY KEY, count INTEGER NOT NULL);"
-        if businessDB.executeUpdate(sql, withArgumentsIn: []) {
-            print("表创建成功")
+        if db.executeUpdate(sql, withArgumentsIn: []) {
+            print("t_error_words表创建成功")
         } else {
-            print("表创建失败")
+            print("t_error_words表创建失败")
         }
     }
     
     func insert(error wordId: Int) {
         var sql = "SELECT count FROM t_error_words WHERE word_id = ?"
-        if let result = businessDB.executeQuery(sql, withArgumentsIn: [wordId]), result.next() {
+        if let result = db.executeQuery(sql, withArgumentsIn: [wordId]), result.next() {
             let count = result.int(forColumn: "count")
             sql = "UPDATE t_error_words SET count = ? WHERE word_id = ?;"
-            if businessDB.executeUpdate(sql, withArgumentsIn: [count + 1, wordId]) {
+            if db.executeUpdate(sql, withArgumentsIn: [count + 1, wordId]) {
                 print("更新成功")
             } else {
                 print("更新失败")
             }
         } else {
             sql = "INSERT INTO t_error_words(word_id, count) VALUES(?, 1);"
-            if businessDB.executeUpdate(sql, withArgumentsIn: [wordId]) {
+            if db.executeUpdate(sql, withArgumentsIn: [wordId]) {
                 print("更新成功")
             } else {
                 print("更新失败")
@@ -92,7 +97,7 @@ extension DB {
     
     func delete(error wordId: Int) {
         let sql = "DELETE FROM t_error_words WHERE word_id = ?"
-        let flag = businessDB.executeUpdate(sql, withArgumentsIn: [wordId])
+        let flag = db.executeUpdate(sql, withArgumentsIn: [wordId])
         if flag {
             print("\(wordId)删除成功")
         } else {
@@ -103,7 +108,7 @@ extension DB {
     func allErrorWords() -> [Int : Int] {
         var words = [Int : Int]()
         let sql = "SELECT * FROM t_error_words"
-        guard let result = businessDB.executeQuery(sql, withArgumentsIn: []) else {
+        guard let result = db.executeQuery(sql, withArgumentsIn: []) else {
             return words
         }
         while result.next() {
@@ -119,7 +124,7 @@ extension DB {
     
     func get(bookBy bookId: Int) -> Book? {
         let sql = "SELECT * FROM t_books WHERE id = ?"
-        guard let result = wordDB.executeQuery(sql, withArgumentsIn: [bookId]) else {
+        guard let result = db.executeQuery(sql, withArgumentsIn: [bookId]) else {
             return nil
         }
         while result.next() {
@@ -134,7 +139,7 @@ extension DB {
     func get(lessonBy lessonId: Int?) -> Lesson? {
         guard let lessonId = lessonId else { return nil }
         let sql = "SELECT * FROM t_lessons WHERE id = ?"
-        guard let result = wordDB.executeQuery(sql, withArgumentsIn: [lessonId]) else {
+        guard let result = db.executeQuery(sql, withArgumentsIn: [lessonId]) else {
             return nil
         }
         while result.next() {
@@ -160,7 +165,7 @@ extension DB {
             }
         }
         let sql = "SELECT * FROM t_words WHERE id in(\(ids))"
-        guard let result = wordDB.executeQuery(sql, withArgumentsIn: []) else {
+        guard let result = db.executeQuery(sql, withArgumentsIn: []) else {
             return words
         }
         
@@ -187,7 +192,7 @@ extension DB {
     func get(wordBy wordId: Int?) -> Word? {
         guard let wordId = wordId else { return nil }
         let sql = "SELECT * FROM t_words WHERE id = ?"
-        guard let result = wordDB.executeQuery(sql, withArgumentsIn: [wordId]) else { return nil }
+        guard let result = db.executeQuery(sql, withArgumentsIn: [wordId]) else { return nil }
         
         while result.next() {
             let word = make(wordBy: result)
@@ -202,7 +207,7 @@ extension DB {
         guard let lessonId = lessonId else { return words }
         
         let sql = "SELECT * FROM t_words WHERE lesson_id = ?"
-        guard let result = wordDB.executeQuery(sql, withArgumentsIn: [lessonId]) else {
+        guard let result = db.executeQuery(sql, withArgumentsIn: [lessonId]) else {
             return words
         }
         
@@ -218,7 +223,7 @@ extension DB {
         guard let bookId = bookId else { return lessons }
         
         let sql = "SELECT * FROM t_lessons WHERE book_id = ?"
-        guard let result = wordDB.executeQuery(sql, withArgumentsIn: [bookId]) else {
+        guard let result = db.executeQuery(sql, withArgumentsIn: [bookId]) else {
             return lessons
         }
 
@@ -238,7 +243,7 @@ extension DB {
     func allBooks() -> [Book] {
         var books = [Book]()
         let sql = "SELECT * FROM t_books"
-        guard let result = wordDB.executeQuery(sql, withArgumentsIn: []) else {
+        guard let result = db.executeQuery(sql, withArgumentsIn: []) else {
             return books
         }
         
@@ -268,69 +273,5 @@ extension DB {
         return word
     }
     
-    func insertWords() {
-
-//        insertWords(json: "新概念第一册", number: 1)
-        insertWords(json: "新概念第二册", number: 2)
-        insertWords(json: "新概念第三册", number: 3)
-        insertWords(json: "新概念第四册", number: 4)
-        
-        print("已经全部插入")
-    }
     
-    func insertWords(json: String, number: Int) {
-        if wordDB.open() {
-            print("DB打开成功")
-            
-            let path = "/Users/xiaohongli/Desktop/\(json).json"
-            do {
-                let data = try Data(contentsOf: URL(fileURLWithPath: path))
-                let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-                
-                let jsonDict = json as! Dictionary<String, Any>
-                var max = 0
-                if let maxresult = wordDB.executeQuery("select min(id) as last from t_lessons where book_id = ?", withArgumentsIn: [number]) {
-                
-                    while maxresult.next() {
-                        max = Int(maxresult.int(forColumn: "last")) - 1
-                    }
-                }
-
-                if let data = jsonDict["data"] as? [[String:Any]] {
-                    for item in data {
-                        if let lesson_no = item["lesson_no"] as? Int, let list = item["list"] as? [[String:Any]] {
-                            for word in list {
-                                
-                                let en_content = word["en_content"] as? String
-                                let cn_content = word["cn_content"] as? String
-                                let soundmark_us = word["am_phonogram"] as? String
-                                let soundmark_uk = word["en_phonogram"] as? String
-                                let audio_url_us = word["am_audio"] as? String
-                                let audio_url_uk = word["en_audio"] as? String
-                                let orders = word["orders"] as! Int
-
-                                let sql = "INSERT INTO t_words(book_id, lesson_id, number, english, chinese,soundmark_us, soundmark_uk, audio_url_us, audio_url_uk, create_time, update_time) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-                                
-                                let result = wordDB.executeUpdate(sql, withArgumentsIn: [number, lesson_no + max, orders+1, en_content, cn_content,soundmark_us,soundmark_uk,audio_url_us,audio_url_uk,"2023-3-18 15:00:00","2023-3-18 15:00:00"])
-                                
-                                if result {
-                                    print("成功")
-                                } else {
-                                    print("失败")
-                                }
-                            }
-                        }
-                    }
-                }
-
-            } catch {
-                
-            }
-            
-        } else {
-            print("DB打开失败")
-        }
-        
-        wordDB.close()
-    }
 }

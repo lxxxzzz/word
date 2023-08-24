@@ -35,6 +35,7 @@ class APP: NSObject {
             UserDefaults.standard.synchronize()
         }
     }
+    /// 0:美式 1：英式
     var pronunciationType = 0 {
         didSet {
             guard oldValue != pronunciationType else { return }
